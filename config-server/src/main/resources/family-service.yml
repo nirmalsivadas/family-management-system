@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/family_management_system_db
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+    jpa:
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka
+
+  server:
+    port: 8081

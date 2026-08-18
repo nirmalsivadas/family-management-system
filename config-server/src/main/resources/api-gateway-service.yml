@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            -Path=/auth/**
+
+        - id: family-service
+          uri: lb://FAMILY-SERVICE
+          predicates:
+            -Path=/family/**
+
+        - id: master-service
+          uri: lb://MASTER-SERVICE
+          predicates:
+            -Path=/master/**
+
+server:
+  port: 8080
