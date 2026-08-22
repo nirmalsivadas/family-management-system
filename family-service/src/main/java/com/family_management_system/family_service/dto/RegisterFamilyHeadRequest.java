@@ -11,21 +11,29 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterFamilyRequest {
+public class RegisterFamilyHeadRequest {
     private String familyName;
-    private int numberOfFamilyMembers;
+    private Long numberOfFamilyMembers;
     private String memberShipType;
     private String registrationCategory;
     private String firstName;
     private String lastName;
     private Date dateOfBirth;
+    private String gender;
     private String maritalStatus;
     private String bloodGroup;
     private Long mobileNumber;
     private String email;
     private String occupation;
-    private String employment;
-    private String employer;
+    private String profession;
+    private String qualification;
     private String designation;
     private Long annualIncome;
+    private String addressLine1;
+    private String addressLine2;
+    private String city;
+    private String country;
+    private String state;
+    private String pinCode;
+    private byte[] photo;
 }

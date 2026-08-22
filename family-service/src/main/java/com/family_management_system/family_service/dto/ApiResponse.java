@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,5 +15,6 @@ import org.springframework.http.HttpStatus;
 public class ApiResponse<T> {
     private String message;
     private HttpStatus status;
+    private LocalDateTime timeStamp;
     private T data;
 }

@@ -19,8 +19,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany
-    @JoinColumn(name = "family_head_id")
+    @OneToMany(mappedBy = "user")
     private List<FamilyHead> familyHeads;
 
     private String firstName;

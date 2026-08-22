@@ -1,9 +1,10 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import './Overview.css';
 
 function Overview(){
   return(
-    <div>
+    <div className="overview-container">
       <h1>Overview</h1>
       <p>abcdef</p>
       <div>Total Families</div>

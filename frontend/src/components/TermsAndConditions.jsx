@@ -1,9 +1,10 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
+import './TermsAndConditions.css';
 
 function TermsAndConditions(){
   return (
-    <div>
+    <div className="terms-and-conditions-container">
       <h1>Terms and Conditions</h1>
       <p>Welcome to our website! By using our website, you agree to the following terms and conditions:</p>
       <h3>1. Acceptance of Terms</h3>
@@ -23,7 +24,9 @@ function TermsAndConditions(){
 
       <h3>6. Changes to Terms</h3>
       <p>We reserve the right to update these terms at any time. Continued use of the platform after changes are posted constitutes your acceptance of the updated terms.</p>
-      <div>Back to <Link to="/signup">Signup</Link></div>
+      <div className="back-link">
+        Back to <Link to="/signup">Signup</Link>
+      </div>
     </div>
   )
 }

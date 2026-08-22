@@ -1,8 +1,9 @@
 import React from "react";
+import './RecentFamilies.css';
 
 function RecentFamilies(){
   return (
-    <div>
+    <div className="recent-families">
       <div>1</div>
       <div>2</div>
       <div>3</div>

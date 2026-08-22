@@ -10,8 +10,9 @@
         <module name="config-server" />
         <module name="auth-service" />
         <module name="master-service" />
-        <module name="eureka-server" />
         <module name="api-gateway-service" />
+        <module name="eureka-server" />
+        <module name="notification-service" />
       </profile>
       <profile name="Annotation profile for family-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -24,6 +25,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="notification-service (1)" target="1.5" />
       <module name="user-service" target="17" />
     </bytecodeTargetLevel>
   </component>
@@ -35,6 +37,7 @@
       <module name="eureka-server" options="-parameters" />
       <module name="family-service" options="-parameters" />
       <module name="master-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
