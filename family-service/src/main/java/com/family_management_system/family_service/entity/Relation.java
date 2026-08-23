@@ -17,6 +17,6 @@ public class Relation {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false,length = 50)
+    @Column(length = 50)
     private String name;
 }
