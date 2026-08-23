@@ -108,17 +108,17 @@ public class FamilyServiceImpl implements FamilyService {
         viewFamily.setDesignation(familyHead.getDesignation());
         viewFamily.setAnnualIncome(familyHead.getAnnualIncome());
         viewFamily.setOrganization(familyHead.getOrganization());
-        private List<FamilyMember> familyMembers;
-        private byte[] photo;
+//        private List<FamilyMember> familyMembers;
+//        private byte[] photo;
         return viewFamily;
     }
 
     @Override
     public String updateFamily(UpdateFamilyRequest updateFamilyRequest) {
-        FamilyHead familyHead = FamilyHeadMapper.updateFamilyHeadEntity(updateFamilyRequest);
-        FamilyMember familyMember = FamilyMemberMapper.updateFamilyMemberEntity(updateFamilyRequest);
-        familyHeadRepository.save(familyHead);
-        familyMemberRepository.save(familyMember);
+//        FamilyHead familyHead = FamilyHeadMapper.updateFamilyHeadEntity(updateFamilyRequest);
+//        FamilyMember familyMember = FamilyMemberMapper.updateFamilyMemberEntity(updateFamilyRequest);
+//        familyHeadRepository.save(familyHead);
+//        familyMemberRepository.save(familyMember);
         return "Family updated";
     }
 }

@@ -24,7 +24,4 @@ public class User {
   private String firstName;
   private String lastName;
   private String mobileNumber;
-
-  @Column(nullable = false)
-  private boolean enabled = true;
 }

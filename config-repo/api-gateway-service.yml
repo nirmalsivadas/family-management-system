@@ -5,22 +5,22 @@ spring:
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            -Path=/auth/**
+            - Path=/api/auth/**
 
         - id: family-service
           uri: lb://FAMILY-SERVICE
           predicates:
-            -Path=/family/**
+            - Path=/api/family/**
 
         - id: master-service
           uri: lb://MASTER-SERVICE
           predicates:
-            -Path=/master/**
+            - Path=/api/master/**
 
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
-            -Path=/notification/**
+            - Path=/api/notification/**
 
 server:
   port: 8080

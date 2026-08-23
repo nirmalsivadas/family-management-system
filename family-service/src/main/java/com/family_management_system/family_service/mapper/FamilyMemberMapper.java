@@ -22,7 +22,7 @@ public class FamilyMemberMapper {
 
     public static FamilyMember updateFamilyMemberEntity(UpdateFamilyRequest updateFamilyRequest){
         FamilyMember familyMember = new FamilyMember();
-        familyMember.setRelation(updateFamilyRequest.getUpdateFamilyMemberRequest().getRelationShipWithFamilyHead());
+//        familyMember.setRelation(updateFamilyRequest.getUpdateFamilyMemberRequest().getRelationShipWithFamilyHead());
         familyMember.setFirstName(updateFamilyRequest.getUpdateFamilyMemberRequest().getFirstName());
         familyMember.setLastName(updateFamilyRequest.getUpdateFamilyMemberRequest().getLastName());
         familyMember.setGender(updateFamilyRequest.getUpdateFamilyMemberRequest().getGender());

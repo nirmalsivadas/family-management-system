@@ -87,17 +87,4 @@ public class FamilyController {
         );
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/update-profile")
-    public ResponseEntity<ApiResponse<String>> updateProfile(
-            @Valid @RequestBody UpdateProfileRequest updateProfileRequest
-    ){
-        ApiResponse<String> response = new ApiResponse<>(
-                "profile updated",
-                HttpStatus.OK,
-                LocalDateTime.now(),
-                userService.updateProfile(updateProfileRequest)
-        );
-        return ResponseEntity.ok(response);
-    }
 }

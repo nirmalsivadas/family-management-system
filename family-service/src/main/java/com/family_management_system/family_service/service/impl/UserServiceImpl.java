@@ -1,9 +1,6 @@
 package com.family_management_system.family_service.service.impl;
 
-import com.family_management_system.family_service.dto.ChangePasswordRequest;
-import com.family_management_system.family_service.dto.UpdateFamilyRequest;
-import com.family_management_system.family_service.dto.UpdateProfileRequest;
-import com.family_management_system.family_service.dto.UserResponse;
+import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.UserMapper;
@@ -48,7 +45,7 @@ public class UserServiceImpl implements UserService {
         User user1 = userRepository.findById(updateProfileRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("User not found"));
 
-        User user =  UserMapper.toEntity(updateProfileRequest);
+        User user =  UserMapper.toUpdateEntity(updateProfileRequest);
         userRepository.save(user);
         return "Profile updated successfully";
     }
@@ -78,5 +75,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long confirmedStatus(Long userId) {
         return familyMemberRepository.countByStatus(Status.CONFIRMED);
+    }
+
+    @Override
+    public UserResponse createUser(SignupRequest signupRequest) {
+        User user = UserMapper.toEntity(signupRequest);
+        userRepository.save(user);
+        return UserMapper.toResponse(user);
     }
 }

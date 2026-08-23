@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Long> {
-    ViewMembers findAllFamilyMembers();
     Long countByFamilyHeadUserId(Long userId);
     Long countByStatus(Status status);
     Page<FamilyMember> findByFamilyHeadUserId(Long userId, Pageable pageable);

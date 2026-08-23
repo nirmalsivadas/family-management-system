@@ -1,9 +1,11 @@
 package com.family_management_system.family_service.service;
 
 import com.family_management_system.family_service.dto.ChangePasswordRequest;
+import com.family_management_system.family_service.dto.SignupRequest;
 import com.family_management_system.family_service.dto.UpdateProfileRequest;
 import com.family_management_system.family_service.dto.UserResponse;
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 
 public interface UserService {
     UserResponse findByEmail(String email);
@@ -13,4 +15,5 @@ public interface UserService {
     String changePassword(@Valid ChangePasswordRequest changePasswordRequest);
     Long pendingStatus(Long userId);
     Long confirmedStatus(Long userId);
+    UserResponse createUser(SignupRequest signupRequest);
 }

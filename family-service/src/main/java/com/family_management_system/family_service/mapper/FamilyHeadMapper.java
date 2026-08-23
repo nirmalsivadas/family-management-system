@@ -43,34 +43,34 @@ public class FamilyHeadMapper {
         return familyHead;
     }
 
-    public static byte[] photo(){
-    }
-
-    public static FamilyHead updateFamilyHeadEntity(UpdateFamilyRequest updateFamilyRequest){
-        FamilyHead familyHead = new FamilyHead();
-
-        private String familyName;
-        private Long numberOfFamilyMembers;
-        private String memberShipType;
-        private String registrationCategory;
-        private String firstName;
-        private String lastName;
-        private String gender;
-        private String maritalStatus;
-        private String bloodGroup;
-        private Long mobileNumber;
-        private String occupation;
-        private String profession;
-        private String qualification;
-        private String designation;
-        private Long annualIncome;
-        private String addressLine1;
-        private String addressLine2;
-        private String city;
-        private String country;
-        private String state;
-        private String pinCode;
-        private byte[] photo;
-        return familyHead;
-    }
+//    public static byte[] photo(){
+//    }
+//
+//    public static FamilyHead updateFamilyHeadEntity(UpdateFamilyRequest updateFamilyRequest){
+//        FamilyHead familyHead = new FamilyHead();
+//
+//        private String familyName;
+//        private Long numberOfFamilyMembers;
+//        private String memberShipType;
+//        private String registrationCategory;
+//        private String firstName;
+//        private String lastName;
+//        private String gender;
+//        private String maritalStatus;
+//        private String bloodGroup;
+//        private Long mobileNumber;
+//        private String occupation;
+//        private String profession;
+//        private String qualification;
+//        private String designation;
+//        private Long annualIncome;
+//        private String addressLine1;
+//        private String addressLine2;
+//        private String city;
+//        private String country;
+//        private String state;
+//        private String pinCode;
+//        private byte[] photo;
+//        return familyHead;
+//    }
 }

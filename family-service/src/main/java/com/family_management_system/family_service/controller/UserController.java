@@ -1,9 +1,6 @@
 package com.family_management_system.family_service.controller;
 
-import com.family_management_system.family_service.dto.ApiResponse;
-import com.family_management_system.family_service.dto.ChangePasswordRequest;
-import com.family_management_system.family_service.dto.UpdateProfileRequest;
-import com.family_management_system.family_service.dto.UserResponse;
+import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +11,20 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public ResponseEntity<UserResponse> findByEmail(String email){
+    @GetMapping("/by-email")
+    public ResponseEntity<UserResponse> getUserByEmail(@RequestParam String email){
         return ResponseEntity.ok(userService.findByEmail(email));
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(@RequestBody SignupRequest signupRequest){
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signupRequest));
     }
 
     @PatchMapping("/change-password")
