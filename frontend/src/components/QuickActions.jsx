@@ -6,7 +6,7 @@ function QuickActions(){
   return (
     <div className="quick-actions">
       <div>
-        <button>Register Family <Link to="/register-family"></Link></button>
+        <button>Register Family <Link to="/family-info"></Link></button>
         <button>View Families <Link to="/view-families"></Link></button>
       </div>
       <div>

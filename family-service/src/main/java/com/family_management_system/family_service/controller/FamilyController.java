@@ -7,9 +7,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
@@ -62,15 +65,16 @@ public class FamilyController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/register-family")
+    @PostMapping(value = "/register-family",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<RegisterResponse>> registerFamily(
-            @Valid @ModelAttribute RegisterFamilyRequest registerFamilyRequest
-            ){
+            @Valid @RequestPart("request") RegisterFamilyRequest registerFamilyRequest,
+            @RequestPart(value = "photo") MultipartFile photo
+            ) throws IOException {
         ApiResponse<RegisterResponse> response = new ApiResponse<>(
                 "family registration successful",
                 HttpStatus.CREATED,
                 LocalDateTime.now(),
-                familyService.registerFamily(registerFamilyRequest)
+                familyService.registerFamily(registerFamilyRequest,photo)
         );
         return ResponseEntity.ok(response);
     }

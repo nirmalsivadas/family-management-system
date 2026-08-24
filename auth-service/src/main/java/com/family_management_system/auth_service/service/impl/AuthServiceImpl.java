@@ -24,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
         signupRequest.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         UserDto savedUser = userClient.createUser(signupRequest);
         return new AuthResponse(
+                savedUser.getId(),
                 savedUser.getEmail(),
                 savedUser.getFirstName()
         );
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
         String token = jwtService.generateToken(userDetails);
         AuthResponse response = new AuthResponse(
+                savedUser.getId(),
                 savedUser.getEmail(),
                 savedUser.getFirstName()
         );

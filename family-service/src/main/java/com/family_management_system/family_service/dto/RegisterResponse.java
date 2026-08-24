@@ -19,4 +19,5 @@ public class RegisterResponse {
     private String familyHeadName;
     private Long numberOfMembers;
     private Status status;
+    private String photo;
 }

@@ -88,9 +88,6 @@ public class FamilyHead {
     @Column(length = 150)
     private String addressLine2;
 
-    @Column(length = 100,nullable = false)
-    private String area;
-
     @Column(length = 50,nullable = false)
     private String city;
 
@@ -106,6 +103,8 @@ public class FamilyHead {
     @Column(nullable = false)
     private Date joinDate;
 
+    @Lob
+    @Column(name = "photo")
     private byte[] photo;
 
     @Column(nullable = false)

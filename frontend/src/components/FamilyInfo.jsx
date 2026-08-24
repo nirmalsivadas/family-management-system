@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 
 function FamilyInfo(){
   return(
@@ -22,8 +23,8 @@ function FamilyInfo(){
           <option>SC/ST</option>
           <option>EWS</option>
         </select>
-        <button>Cancel</button>
-        <button>Continue</button>
+        <button type="button">Cancel</button>
+        <button type="submit"><Link to="/family-head-info">Continue</Link></button>
       </form>
     </div>
   );

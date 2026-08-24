@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterFamilyRequest {
-    private Long userId;
     private RegisterFamilyHeadRequest registerFamilyHeadRequest;
     private RegisterFamilyMemberRequest registerFamilyMemberRequest;
 }

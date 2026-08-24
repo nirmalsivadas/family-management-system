@@ -2,8 +2,9 @@ package com.family_management_system.family_service.mapper;
 
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
 import com.family_management_system.family_service.dto.RegisterResponse;
-import com.family_management_system.family_service.dto.UpdateFamilyRequest;
 import com.family_management_system.family_service.entity.FamilyHead;
+
+import java.util.Base64;
 
 public class FamilyHeadMapper {
     public static RegisterResponse toResponse(FamilyHead familyHead){
@@ -13,11 +14,15 @@ public class FamilyHeadMapper {
         registerResponse.setRegistrationDate(familyHead.getJoinDate());
         registerResponse.setStatus(familyHead.getStatus());
         registerResponse.setNumberOfMembers(familyHead.getNumberOfFamilyMembers());
-
+        if (familyHead.getPhoto()!=null && familyHead.getPhoto().length>0){
+            String encodedPhoto = Base64.getEncoder().encodeToString(familyHead.getPhoto());
+            registerResponse.setPhoto(encodedPhoto);
+        }
         return registerResponse;
     }
 
-    public static FamilyHead toEntity(RegisterFamilyRequest registerFamilyRequest){
+    public static FamilyHead toEntity(RegisterFamilyRequest registerFamilyRequest
+    ,byte[] photoBytes){
         FamilyHead familyHead = new FamilyHead();
         familyHead.setFamilyName(registerFamilyRequest.getRegisterFamilyHeadRequest().getFamilyName());
         familyHead.setNumberOfFamilyMembers(registerFamilyRequest.getRegisterFamilyHeadRequest().getNumberOfFamilyMembers());
@@ -40,11 +45,9 @@ public class FamilyHeadMapper {
         familyHead.setCity(registerFamilyRequest.getRegisterFamilyHeadRequest().getCity());
         familyHead.setState(registerFamilyRequest.getRegisterFamilyHeadRequest().getState());
         familyHead.setPincode(registerFamilyRequest.getRegisterFamilyHeadRequest().getPinCode());
+        familyHead.setPhoto(photoBytes);
         return familyHead;
     }
-
-//    public static byte[] photo(){
-//    }
 //
 //    public static FamilyHead updateFamilyHeadEntity(UpdateFamilyRequest updateFamilyRequest){
 //        FamilyHead familyHead = new FamilyHead();

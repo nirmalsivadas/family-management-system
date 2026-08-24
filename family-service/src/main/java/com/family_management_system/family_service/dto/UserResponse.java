@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-
+    private Long id;
     private List<FamilyHead> familyHeads;
     private String firstName;
     private String lastName;

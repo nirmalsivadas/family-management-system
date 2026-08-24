@@ -11,12 +11,16 @@ import com.family_management_system.family_service.repository.FamilyHeadReposito
 import com.family_management_system.family_service.repository.FamilyMemberRepository;
 import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.FamilyService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +31,17 @@ public class FamilyServiceImpl implements FamilyService {
     private final FamilyMemberRepository familyMemberRepository;
 
     @Override
-    public RegisterResponse registerFamily(RegisterFamilyRequest registerFamilyRequest) {
-        User user = userRepository.findById(registerFamilyRequest.getUserId())
-                .orElseThrow(()->new RuntimeException("User not found"));
+    public RegisterResponse registerFamily(
+            RegisterFamilyRequest registerFamilyRequest,
+            MultipartFile photo){
+        byte[] photoBytes = null;
+        try{
+            photoBytes = (photo!=null) ? photo.getBytes() : null;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read profile picture file data", e);
+        }
 
-        FamilyHead familyHead = FamilyHeadMapper.toEntity(registerFamilyRequest);
+        FamilyHead familyHead = FamilyHeadMapper.toEntity(registerFamilyRequest,photoBytes);
         FamilyMember familyMember = FamilyMemberMapper.toEntity(registerFamilyRequest);
         familyHead.setNumberOfFamilyMembers(familyHead.getNumberOfFamilyMembers()+1);
         familyHeadRepository.save(familyHead);
