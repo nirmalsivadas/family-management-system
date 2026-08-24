@@ -1,6 +1,5 @@
 package com.family_management_system.family_service.service.impl;
 
-import com.family_management_system.family_service.controller.MasterClient;
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.FamilyMember;
@@ -18,9 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
