@@ -1,5 +1,6 @@
 package com.family_management_system.family_service.service.impl;
 
+import com.family_management_system.family_service.controller.MasterClient;
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.FamilyMember;
