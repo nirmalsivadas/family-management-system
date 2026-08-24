@@ -3,15 +3,14 @@ package com.family_management_system.family_service.service.impl;
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.FamilyMember;
-import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.FamilyHeadMapper;
 import com.family_management_system.family_service.mapper.FamilyMemberMapper;
 import com.family_management_system.family_service.repository.FamilyHeadRepository;
 import com.family_management_system.family_service.repository.FamilyMemberRepository;
+import com.family_management_system.family_service.repository.RelationRepository;
 import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.FamilyService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +29,7 @@ public class FamilyServiceImpl implements FamilyService {
     private final UserRepository userRepository;
     private final FamilyHeadRepository familyHeadRepository;
     private final FamilyMemberRepository familyMemberRepository;
+    private final RelationRepository relationRepository;
 
     @Override
     public RegisterResponse registerFamily(
@@ -42,10 +43,17 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         FamilyHead familyHead = FamilyHeadMapper.toEntity(registerFamilyRequest,photoBytes);
-        FamilyMember familyMember = FamilyMemberMapper.toEntity(registerFamilyRequest);
-        familyHead.setNumberOfFamilyMembers(familyHead.getNumberOfFamilyMembers()+1);
+        List<RegisterFamilyMemberRequest> registerFamilyMemberRequestList = registerFamilyRequest.getRegisterFamilyMemberRequests();
+        List<FamilyMember> familyMembers = FamilyMemberMapper.toListEntity(registerFamilyMemberRequestList);
+        long memberCount = (registerFamilyMemberRequestList!= null ? registerFamilyMemberRequestList.size() : 0) + 1;
+        familyHead.setNumberOfFamilyMembers(memberCount);
         familyHeadRepository.save(familyHead);
-        familyMemberRepository.save(familyMember);
+        if (familyMembers!=null && !familyMembers.isEmpty()){
+            for (FamilyMember familyMember : familyMembers){
+                familyMember.setFamilyHead(familyHead);
+            }
+            familyMemberRepository.saveAll(familyMembers);
+        }
         return FamilyHeadMapper.toResponse(familyHead);
     }
 

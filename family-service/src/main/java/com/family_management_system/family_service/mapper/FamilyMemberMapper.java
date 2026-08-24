@@ -1,36 +1,58 @@
 package com.family_management_system.family_service.mapper;
 
+import com.family_management_system.family_service.dto.RegisterFamilyMemberRequest;
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
 import com.family_management_system.family_service.dto.UpdateFamilyRequest;
 import com.family_management_system.family_service.entity.FamilyMember;
+import com.family_management_system.family_service.enums.Status;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FamilyMemberMapper {
-    public static FamilyMember toEntity(RegisterFamilyRequest registerFamilyRequest){
+    public static FamilyMember toEntity(RegisterFamilyMemberRequest registerFamilyMemberRequest){
+        if (registerFamilyMemberRequest==null){
+            return null;
+        }
         FamilyMember familyMember = new FamilyMember();
-        familyMember.setFirstName(registerFamilyRequest.getRegisterFamilyMemberRequest().getFirstName());
-        familyMember.setLastName(registerFamilyRequest.getRegisterFamilyMemberRequest().getLastName());
-        familyMember.setDateOfBirth(registerFamilyRequest.getRegisterFamilyMemberRequest().getDateOfBirth());
-        familyMember.setGender(registerFamilyRequest.getRegisterFamilyMemberRequest().getGender());
-        familyMember.setMaritalStatus(registerFamilyRequest.getRegisterFamilyMemberRequest().getMaritalStatus());
-        familyMember.setBloodGroup(registerFamilyRequest.getRegisterFamilyMemberRequest().getBloodGroup());
-        familyMember.setMobileNumber(registerFamilyRequest.getRegisterFamilyMemberRequest().getMobileNumber());
-        familyMember.setEmail(registerFamilyRequest.getRegisterFamilyMemberRequest().getEmail());
-        familyMember.setOccupation(registerFamilyRequest.getRegisterFamilyMemberRequest().getOccupation());
-        familyMember.setEmployment(registerFamilyRequest.getRegisterFamilyMemberRequest().getEmployment());
+        familyMember.setFirstName(registerFamilyMemberRequest.getFirstName());
+        familyMember.setLastName(registerFamilyMemberRequest.getLastName());
+        familyMember.setDateOfBirth(registerFamilyMemberRequest.getDateOfBirth());
+        familyMember.setGender(registerFamilyMemberRequest.getGender());
+        familyMember.setMaritalStatus(registerFamilyMemberRequest.getMaritalStatus());
+        familyMember.setBloodGroup(registerFamilyMemberRequest.getBloodGroup());
+        familyMember.setMobileNumber(registerFamilyMemberRequest.getMobileNumber());
+        familyMember.setEmail(registerFamilyMemberRequest.getEmail());
+        familyMember.setOccupation(registerFamilyMemberRequest.getOccupation());
+        familyMember.setEmployment(registerFamilyMemberRequest.getEmployment());
+        familyMember.setOrganization(registerFamilyMemberRequest.getOrganization());
+        familyMember.setProfession(registerFamilyMemberRequest.getProfession());
+        familyMember.setQualification(registerFamilyMemberRequest.getQualification());
+        familyMember.setStatus(Status.PENDING);
         return familyMember;
+    }
+        public static List<FamilyMember> toListEntity(List<RegisterFamilyMemberRequest> registerFamilyMemberRequestList){
+        if (registerFamilyMemberRequestList==null || registerFamilyMemberRequestList.isEmpty()){
+            return Collections.emptyList();
+        }
+        return registerFamilyMemberRequestList
+                .stream()
+                .map(FamilyMemberMapper::toEntity)
+                .collect(Collectors.toList());
     }
 
-    public static FamilyMember updateFamilyMemberEntity(UpdateFamilyRequest updateFamilyRequest){
-        FamilyMember familyMember = new FamilyMember();
+//    public static FamilyMember updateFamilyMemberEntity(UpdateFamilyRequest updateFamilyRequest){
+//        FamilyMember familyMember = new FamilyMember();
 //        familyMember.setRelation(updateFamilyRequest.getUpdateFamilyMemberRequest().getRelationShipWithFamilyHead());
-        familyMember.setFirstName(updateFamilyRequest.getUpdateFamilyMemberRequest().getFirstName());
-        familyMember.setLastName(updateFamilyRequest.getUpdateFamilyMemberRequest().getLastName());
-        familyMember.setGender(updateFamilyRequest.getUpdateFamilyMemberRequest().getGender());
-        familyMember.setMaritalStatus(updateFamilyRequest.getUpdateFamilyMemberRequest().getMaritalStatus());
-        familyMember.setBloodGroup(updateFamilyRequest.getUpdateFamilyMemberRequest().getBloodGroup());
-        familyMember.setMobileNumber(updateFamilyRequest.getUpdateFamilyMemberRequest().getMobileNumber());
-        familyMember.setOccupation(updateFamilyRequest.getUpdateFamilyMemberRequest().getOccupation());
-        familyMember.setEmployment(updateFamilyRequest.getUpdateFamilyMemberRequest().getEmployment());
-        return familyMember;
-    }
+//        familyMember.setFirstName(updateFamilyRequest.getUpdateFamilyMemberRequest().getFirstName());
+//        familyMember.setLastName(updateFamilyRequest.getUpdateFamilyMemberRequest().getLastName());
+//        familyMember.setGender(updateFamilyRequest.getUpdateFamilyMemberRequest().getGender());
+//        familyMember.setMaritalStatus(updateFamilyRequest.getUpdateFamilyMemberRequest().getMaritalStatus());
+//        familyMember.setBloodGroup(updateFamilyRequest.getUpdateFamilyMemberRequest().getBloodGroup());
+//        familyMember.setMobileNumber(updateFamilyRequest.getUpdateFamilyMemberRequest().getMobileNumber());
+//        familyMember.setOccupation(updateFamilyRequest.getUpdateFamilyMemberRequest().getOccupation());
+//        familyMember.setEmployment(updateFamilyRequest.getUpdateFamilyMemberRequest().getEmployment());
+//        return familyMember;
+//    }
 }

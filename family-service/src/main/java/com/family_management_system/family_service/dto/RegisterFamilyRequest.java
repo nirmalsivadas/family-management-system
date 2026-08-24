@@ -5,11 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterFamilyRequest {
+    private Long id;
     private RegisterFamilyHeadRequest registerFamilyHeadRequest;
-    private RegisterFamilyMemberRequest registerFamilyMemberRequest;
+    private List<RegisterFamilyMemberRequest> registerFamilyMemberRequests;
 }

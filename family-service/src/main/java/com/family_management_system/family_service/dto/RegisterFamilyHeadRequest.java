@@ -28,6 +28,7 @@ public class RegisterFamilyHeadRequest {
     private String profession;
     private String qualification;
     private String designation;
+    private String organization;
     private Long annualIncome;
     private String addressLine1;
     private String addressLine2;

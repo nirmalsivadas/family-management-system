@@ -52,7 +52,7 @@ public class FamilyMember {
     @Column(nullable = false,length = 5)
     private String bloodGroup;
 
-    @Column(length = 10,nullable = false)
+    @Column(nullable = false)
     private Long mobileNumber;
 
     @Column(nullable = false)
@@ -63,6 +63,9 @@ public class FamilyMember {
 
     @Column(nullable = false)
     private String employment;
+
+    @Column(nullable = false)
+    private String organization;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

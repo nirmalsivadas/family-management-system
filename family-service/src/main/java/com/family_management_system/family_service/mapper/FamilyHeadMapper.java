@@ -3,8 +3,10 @@ package com.family_management_system.family_service.mapper;
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
 import com.family_management_system.family_service.dto.RegisterResponse;
 import com.family_management_system.family_service.entity.FamilyHead;
+import com.family_management_system.family_service.enums.Status;
 
 import java.util.Base64;
+import java.util.Date;
 
 public class FamilyHeadMapper {
     public static RegisterResponse toResponse(FamilyHead familyHead){
@@ -23,9 +25,12 @@ public class FamilyHeadMapper {
 
     public static FamilyHead toEntity(RegisterFamilyRequest registerFamilyRequest
     ,byte[] photoBytes){
+        if (registerFamilyRequest == null || registerFamilyRequest.getRegisterFamilyHeadRequest() == null) {
+            throw new IllegalArgumentException("Registration request data or Family Head details cannot be null");
+        }
         FamilyHead familyHead = new FamilyHead();
         familyHead.setFamilyName(registerFamilyRequest.getRegisterFamilyHeadRequest().getFamilyName());
-        familyHead.setNumberOfFamilyMembers(registerFamilyRequest.getRegisterFamilyHeadRequest().getNumberOfFamilyMembers());
+        familyHead.setMemberShipId("MEM-"+System.currentTimeMillis());
         familyHead.setMemberShipType(registerFamilyRequest.getRegisterFamilyHeadRequest().getMemberShipType());
         familyHead.setFirstName(registerFamilyRequest.getRegisterFamilyHeadRequest().getFirstName());
         familyHead.setLastName(registerFamilyRequest.getRegisterFamilyHeadRequest().getLastName());
@@ -46,6 +51,11 @@ public class FamilyHeadMapper {
         familyHead.setState(registerFamilyRequest.getRegisterFamilyHeadRequest().getState());
         familyHead.setPincode(registerFamilyRequest.getRegisterFamilyHeadRequest().getPinCode());
         familyHead.setPhoto(photoBytes);
+        familyHead.setCountry(registerFamilyRequest.getRegisterFamilyHeadRequest().getCountry());
+        familyHead.setJoinDate(new Date());
+        familyHead.setStatus(Status.PENDING);
+        familyHead.setOrganization(registerFamilyRequest.getRegisterFamilyHeadRequest().getOrganization());
+        familyHead.setRegistrationCategory(registerFamilyRequest.getRegisterFamilyHeadRequest().getRegistrationCategory());
         return familyHead;
     }
 //

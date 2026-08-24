@@ -23,4 +23,7 @@ public class RegisterFamilyMemberRequest {
     private String email;
     private String occupation;
     private String employment;
+    private String qualification;
+    private String profession;
+    private String organization;
 }
