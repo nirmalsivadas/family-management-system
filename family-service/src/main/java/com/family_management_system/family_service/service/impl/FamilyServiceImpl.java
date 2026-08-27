@@ -13,6 +13,8 @@ import com.family_management_system.family_service.repository.RelationRepository
 import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.FamilyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -71,6 +73,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    @Cacheable(value = "view-families",key = "#userId")
     public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size) {
         Pageable pageable = PageRequest.of(page,size,
                 Sort.by("joinDate").descending());
@@ -99,6 +102,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "view-members",key = "#userId")
     public Page<ViewMembers> viewMembers(Long userId,int page,int size) {
         Pageable pageable = PageRequest.of(page,size);
 
@@ -119,6 +123,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "view-family",key = "#userId + '_' + #memberShipId")
     public ViewFamily viewFamily(Long userId,String memberShipId) {
         FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(userId,memberShipId);
 
@@ -148,6 +153,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    @CachePut(value = "update-family",key = "#userId")
     public String updateFamily(Long userId,UpdateFamilyRequest updateFamilyRequest) {
 //        FamilyHead familyHead = FamilyHeadMapper.updateFamilyHeadEntity(updateFamilyRequest);
 //        FamilyMember familyMember = FamilyMemberMapper.updateFamilyMemberEntity(updateFamilyRequest);
@@ -161,6 +167,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "recent-families",key = "#userId")
     public List<RecentFamilies> recentFamilies(Long userId) {
         List<FamilyHead> familyHeads = familyHeadRepository.findTop5ByUserIdOrderByJoinDateDesc(userId);
         return familyHeads.stream().map(fh->new RecentFamilies(

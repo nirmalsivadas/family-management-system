@@ -1,6 +1,7 @@
 package com.family_management_system.family_service.service.impl;
 
 import com.family_management_system.family_service.dto.*;
+import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.UserMapper;
@@ -89,7 +90,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String changeStatus(Long userId) {
+    public String changeStatus(Long userId, String status) {
+        FamilyHead familyHead = familyHeadRepository.findByUserId(userId);
+        familyHead.setStatus(Status.valueOf(status));
+        familyHeadRepository.save(familyHead);
         kafkaTemplate.send("status-changed",userId.toString(),"Status changed");
         return "Status changed";
     }

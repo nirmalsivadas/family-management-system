@@ -28,6 +28,12 @@ spring:
           auth: true
           starttls:
             enable: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 eureka:
   client:

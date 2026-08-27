@@ -16,4 +16,5 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
             (Long userId, Status status, Pageable pageable);
     FamilyHead findByUserIdAndMemberShipId(Long userId,String memberShipId);
     List<FamilyHead> findTop5ByUserIdOrderByJoinDateDesc(Long userId);
+    FamilyHead findByUserId(Long userId);
 }

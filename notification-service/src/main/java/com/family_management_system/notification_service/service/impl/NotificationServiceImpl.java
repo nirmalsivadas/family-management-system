@@ -8,6 +8,7 @@ import com.family_management_system.notification_service.repository.Notification
 import com.family_management_system.notification_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserClient userClient;
     @Override
+    @Cacheable(value = "notifications",key = "#userId")
     public Page<NotificationResponse> getAllNotifications(Long userId,int page,int size) {
         Pageable pageable = PageRequest.of(page,size, Sort.by("timeStamp").descending());
         Page<Notification> notifications = notificationRepository.findByUserId(userId,pageable);
@@ -40,6 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Cacheable(value = "top5notifications",key = "#userId")
     public List<NotificationResponse> getTop5Notifications(Long userId) {
         List<Notification> notifications = notificationRepository.findTop5ByUserIdOrderByTimeStampDesc(userId);
         return notifications.stream().map(n->new NotificationResponse(

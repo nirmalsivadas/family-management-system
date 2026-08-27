@@ -15,8 +15,7 @@ public interface UserService {
     String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest);
     Long pendingStatus(Long userId);
     Long confirmedStatus(Long userId);
-
-    String changeStatus(Long userId);
+    String changeStatus(Long userId, String status);
 
     UserResponse createUser(SignupRequest signupRequest);
 

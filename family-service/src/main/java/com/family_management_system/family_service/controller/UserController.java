@@ -80,24 +80,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}/pending-status")
-    public ResponseEntity<ApiResponse<Long>> pendingStatus(@PathVariable Long userId){
-        ApiResponse<Long> response = new ApiResponse<>(
-                "Fetched total members with pending status",
+    @GetMapping("/{userId}/{status}")
+    public ResponseEntity<ApiResponse<String>> changeStatus(@PathVariable Long userId,
+                                                           @PathVariable String status){
+        ApiResponse<String> response = new ApiResponse<>(
+                "Status successfully changed",
                 HttpStatus.OK,
                 LocalDateTime.now(),
-                userService.pendingStatus(userId)
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{userId}/confirmed-status")
-    public ResponseEntity<ApiResponse<Long>> confirmedStatus(@PathVariable Long userId){
-        ApiResponse<Long> response = new ApiResponse<>(
-                "Fetched total members with confirmed status",
-                HttpStatus.OK,
-                LocalDateTime.now(),
-                userService.confirmedStatus(userId)
+                userService.changeStatus(userId,status)
         );
         return ResponseEntity.ok(response);
     }
