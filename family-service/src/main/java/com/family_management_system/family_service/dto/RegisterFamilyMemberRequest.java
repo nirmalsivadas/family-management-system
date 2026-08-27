@@ -1,5 +1,6 @@
 package com.family_management_system.family_service.dto;
 
+import com.family_management_system.family_service.enums.Relation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterFamilyMemberRequest {
-    private String relationShipWithFamilyHead;
+    private Relation relationShipWithFamilyHead;
     private String firstName;
     private String lastName;
     private Date dateOfBirth;

@@ -3,6 +3,7 @@ package com.family_management_system.family_service.service.impl;
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.FamilyMember;
+import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.FamilyHeadMapper;
 import com.family_management_system.family_service.mapper.FamilyMemberMapper;
@@ -16,10 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -30,6 +34,7 @@ public class FamilyServiceImpl implements FamilyService {
     private final FamilyHeadRepository familyHeadRepository;
     private final FamilyMemberRepository familyMemberRepository;
     private final RelationRepository relationRepository;
+    private final KafkaTemplate<String,String> kafkaTemplate;
 
     @Override
     public RegisterResponse registerFamily(
@@ -41,12 +46,14 @@ public class FamilyServiceImpl implements FamilyService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to read profile picture file data", e);
         }
-
+        User user = userRepository.findById(registerFamilyRequest.getUserId())
+                .orElseThrow(()->new RuntimeException("User not found"));
         FamilyHead familyHead = FamilyHeadMapper.toEntity(registerFamilyRequest,photoBytes);
         List<RegisterFamilyMemberRequest> registerFamilyMemberRequestList = registerFamilyRequest.getRegisterFamilyMemberRequests();
         List<FamilyMember> familyMembers = FamilyMemberMapper.toListEntity(registerFamilyMemberRequestList);
         long memberCount = (registerFamilyMemberRequestList!= null ? registerFamilyMemberRequestList.size() : 0) + 1;
         familyHead.setNumberOfFamilyMembers(memberCount);
+        familyHead.setUser(user);
         familyHeadRepository.save(familyHead);
         if (familyMembers!=null && !familyMembers.isEmpty()){
             for (FamilyMember familyMember : familyMembers){
@@ -54,6 +61,12 @@ public class FamilyServiceImpl implements FamilyService {
             }
             familyMemberRepository.saveAll(familyMembers);
         }
+        kafkaTemplate.send("family-registered",
+                registerFamilyRequest.getUserId().toString(),
+                familyHead.getFamilyName()+" was registered");
+        kafkaTemplate.send("family-members-added",
+                registerFamilyRequest.getUserId().toString(),
+                familyHead.getNumberOfFamilyMembers()+" family members were added");
         return FamilyHeadMapper.toResponse(familyHead);
     }
 
@@ -85,17 +98,17 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ViewMembers> viewMembers(Long userId,int page,int size) {
-        Pageable pageable = PageRequest.of(page,size,
-                Sort.by("joinDate").descending());
+        Pageable pageable = PageRequest.of(page,size);
 
         Page<FamilyMember> familyMembers = familyMemberRepository
-                .findByFamilyHeadUserId(userId,pageable);
+                .findByFamilyHeadUserIdOrderByFamilyHeadJoinDateDesc(userId,pageable);
 
         return familyMembers.map(fh->
                 new ViewMembers(
                         fh.getFirstName()+" "+fh.getLastName(),
-                        fh.getRelation().getName(),
+                        fh.getRelationShipWithFamilyHead().name(),
                         fh.getFamilyHead().getFamilyName(),
                         fh.getFamilyHead().getMemberShipId(),
                         fh.getOccupation(),
@@ -105,6 +118,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ViewFamily viewFamily(Long userId,String memberShipId) {
         FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(userId,memberShipId);
 
@@ -123,17 +137,37 @@ public class FamilyServiceImpl implements FamilyService {
         viewFamily.setDesignation(familyHead.getDesignation());
         viewFamily.setAnnualIncome(familyHead.getAnnualIncome());
         viewFamily.setOrganization(familyHead.getOrganization());
-//        private List<FamilyMember> familyMembers;
-//        private byte[] photo;
+        if (familyHead.getPhoto()!=null && familyHead.getPhoto().length>0){
+            String encodedPhoto = Base64.getEncoder().encodeToString(familyHead.getPhoto());
+            viewFamily.setPhoto(encodedPhoto);
+        }
+        List<FamilyMember> familyMembers = familyMemberRepository
+                .findByFamilyHeadMemberShipId(memberShipId);
+        viewFamily.setFamilyMembers(familyMembers);
         return viewFamily;
     }
 
     @Override
-    public String updateFamily(UpdateFamilyRequest updateFamilyRequest) {
+    public String updateFamily(Long userId,UpdateFamilyRequest updateFamilyRequest) {
 //        FamilyHead familyHead = FamilyHeadMapper.updateFamilyHeadEntity(updateFamilyRequest);
 //        FamilyMember familyMember = FamilyMemberMapper.updateFamilyMemberEntity(updateFamilyRequest);
 //        familyHeadRepository.save(familyHead);
 //        familyMemberRepository.save(familyMember);
+        kafkaTemplate.send("family-updated",
+                userId.toString(),
+                updateFamilyRequest.getUpdateFamilyHeadRequest().getFamilyName()+" was updated");
         return "Family updated";
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RecentFamilies> recentFamilies(Long userId) {
+        List<FamilyHead> familyHeads = familyHeadRepository.findTop5ByUserIdOrderByJoinDateDesc(userId);
+        return familyHeads.stream().map(fh->new RecentFamilies(
+                fh.getMemberShipId(),
+                fh.getFirstName()+" "+fh.getLastName(),
+                fh.getNumberOfFamilyMembers(),
+                fh.getStatus()
+        )).toList();
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
     Long countByUserId(Long userId);
@@ -13,4 +15,5 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
     Page<FamilyHead> findByUserIdAndStatus
             (Long userId, Status status, Pageable pageable);
     FamilyHead findByUserIdAndMemberShipId(Long userId,String memberShipId);
+    List<FamilyHead> findTop5ByUserIdOrderByJoinDateDesc(Long userId);
 }

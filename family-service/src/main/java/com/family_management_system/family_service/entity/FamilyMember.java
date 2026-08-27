@@ -1,5 +1,6 @@
 package com.family_management_system.family_service.entity;
 
+import com.family_management_system.family_service.enums.Relation;
 import com.family_management_system.family_service.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,9 +26,9 @@ public class FamilyMember {
     @JoinColumn(name = "family_head_id")
     private FamilyHead familyHead;
 
-    @ManyToOne
-    @JoinColumn(name = "relation_id")
-    private Relation relation;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Relation relationShipWithFamilyHead;
 
     @Column(length = 50,nullable = false)
     private String firstName;

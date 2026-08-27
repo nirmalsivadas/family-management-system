@@ -21,7 +21,7 @@ public class ViewFamily {
     private String status;
     private List<FamilyMember> familyMembers;
     private String address;
-    private byte[] photo;
+    private String photo;
     private String familHeadName;
     private String familyHeadGender;
     private Long mobileNumber;

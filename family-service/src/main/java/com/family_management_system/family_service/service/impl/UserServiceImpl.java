@@ -10,7 +10,7 @@ import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.EmailService;
 import com.family_management_system.family_service.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final FamilyHeadRepository familyHeadRepository;
     private final FamilyMemberRepository familyMemberRepository;
+    private final KafkaTemplate<String,String> kafkaTemplate;
 
     @Override
     public UserResponse findByEmail(String email) {
@@ -51,11 +52,14 @@ public class UserServiceImpl implements UserService {
 
         User user =  UserMapper.toUpdateEntity(updateProfileRequest);
         userRepository.save(user);
+        kafkaTemplate.send("profile-updated",
+                updateProfileRequest.getUserId().toString(),
+                updateProfileRequest.getFirstName()+" updated the profile");
         return "Profile updated successfully";
     }
 
     @Override
-    public String changePassword(ChangePasswordRequest changePasswordRequest) {
+    public String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(changePasswordRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("User not found"));
 
@@ -64,10 +68,13 @@ public class UserServiceImpl implements UserService {
         )){
             throw new RuntimeException("Passwords do not match");
         }
-
-        emailService.confirmPasswordChange();
         user.setPassword(changePasswordRequest.getNewPassword());
+        emailService.confirmPasswordChange
+                (userEmail);
         userRepository.save(user);
+        kafkaTemplate.send("password-changed",
+                changePasswordRequest.getUserId().toString(),
+                "A new password was created");
         return "Password Changed successfully";
     }
 
@@ -82,9 +89,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String changeStatus(Long userId) {
+        kafkaTemplate.send("status-changed",userId.toString(),"Status changed");
+        return "Status changed";
+    }
+
+    @Override
     public UserResponse createUser(SignupRequest signupRequest) {
         User user = UserMapper.toEntity(signupRequest);
         userRepository.save(user);
+        return UserMapper.toResponse(user);
+    }
+
+    @Override
+    public UserResponse findByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->
+                new RuntimeException("User not found"));
         return UserMapper.toResponse(user);
     }
 }

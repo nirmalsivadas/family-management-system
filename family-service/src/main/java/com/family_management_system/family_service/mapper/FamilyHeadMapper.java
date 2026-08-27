@@ -16,6 +16,8 @@ public class FamilyHeadMapper {
         registerResponse.setRegistrationDate(familyHead.getJoinDate());
         registerResponse.setStatus(familyHead.getStatus());
         registerResponse.setNumberOfMembers(familyHead.getNumberOfFamilyMembers());
+        registerResponse.setMemberShipNumber(familyHead.getMemberShipId());
+        registerResponse.setFamilyName(familyHead.getFamilyName());
         if (familyHead.getPhoto()!=null && familyHead.getPhoto().length>0){
             String encodedPhoto = Base64.getEncoder().encodeToString(familyHead.getPhoto());
             registerResponse.setPhoto(encodedPhoto);

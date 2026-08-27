@@ -12,6 +12,7 @@
         <module name="master-service" />
         <module name="api-gateway-service" />
         <module name="eureka-server" />
+        <module name="notification-service" />
       </profile>
       <profile name="Annotation profile for family-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -19,12 +20,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
         <module name="family-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="notification-service" target="17" />
       <module name="notification-service (1)" target="1.5" />
       <module name="user-service" target="17" />
     </bytecodeTargetLevel>

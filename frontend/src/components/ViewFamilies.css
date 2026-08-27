@@ -1,10 +1,8 @@
-.recent-families {
+.view-families-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
 }
 
 .family-card {

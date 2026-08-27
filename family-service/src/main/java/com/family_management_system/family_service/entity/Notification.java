@@ -6,16 +6,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "relations")
+@Table(name = "notifications")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Relation {
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    private String title;
+    private String message;
+    private boolean markAsRead;
+    private LocalDateTime timeStamp;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

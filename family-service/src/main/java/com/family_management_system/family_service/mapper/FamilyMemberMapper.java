@@ -30,6 +30,7 @@ public class FamilyMemberMapper {
         familyMember.setProfession(registerFamilyMemberRequest.getProfession());
         familyMember.setQualification(registerFamilyMemberRequest.getQualification());
         familyMember.setStatus(Status.PENDING);
+        familyMember.setRelationShipWithFamilyHead(registerFamilyMemberRequest.getRelationShipWithFamilyHead());
         return familyMember;
     }
         public static List<FamilyMember> toListEntity(List<RegisterFamilyMemberRequest> registerFamilyMemberRequestList){

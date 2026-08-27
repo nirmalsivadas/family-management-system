@@ -11,9 +11,14 @@ public interface UserService {
     UserResponse findByEmail(String email);
     Long totalFamilies(Long userId);
     Long totalMembers(Long userId);
-    String updateProfile(@Valid UpdateProfileRequest updateProfileRequest);
-    String changePassword(@Valid ChangePasswordRequest changePasswordRequest);
+    String updateProfile(UpdateProfileRequest updateProfileRequest);
+    String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest);
     Long pendingStatus(Long userId);
     Long confirmedStatus(Long userId);
+
+    String changeStatus(Long userId);
+
     UserResponse createUser(SignupRequest signupRequest);
+
+    UserResponse findByUserId(Long userId);
 }

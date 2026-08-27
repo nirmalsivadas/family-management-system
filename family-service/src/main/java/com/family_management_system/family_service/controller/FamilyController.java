@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/family")
@@ -22,9 +23,9 @@ public class FamilyController {
 
     private final FamilyService familyService;
 
-    @GetMapping("{userId}/view-families")
+    @GetMapping("/view-families")
     public ResponseEntity<ApiResponse<Page<ViewFamilies>>> viewFamilies(
-            @PathVariable Long userId,
+            @RequestParam Long userId,
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -38,9 +39,9 @@ public class FamilyController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("{userId}/view-members")
+    @GetMapping("/view-members")
     public ResponseEntity<ApiResponse<Page<ViewMembers>>> viewMembers(
-            @PathVariable Long userId,
+            @RequestParam Long userId,
             @RequestParam(defaultValue = "0")int page,
             @RequestParam(defaultValue = "10")int size){
         ApiResponse<Page<ViewMembers>> response = new ApiResponse<>(
@@ -52,9 +53,9 @@ public class FamilyController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("{userId}/{memberShipId}/view-family")
+    @GetMapping("/{memberShipId}/view-family")
     public ResponseEntity<ApiResponse<ViewFamily>> viewFamily(
-            @PathVariable Long userId,
+            @RequestParam Long userId,
             @PathVariable String memberShipId){
         ApiResponse<ViewFamily> response = new ApiResponse<>(
                 "fetched family",
@@ -79,15 +80,26 @@ public class FamilyController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/recent-families")
+    public ResponseEntity<ApiResponse<List<RecentFamilies>>> recentFamilies(@RequestParam Long userId){
+        ApiResponse<List<RecentFamilies>> response = new ApiResponse<>(
+                "recent families registered fetched",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                familyService.recentFamilies(userId)
+        );
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/update-family")
-    public ResponseEntity<ApiResponse<String>> updateFamily(
+    public ResponseEntity<ApiResponse<String>> updateFamily(@RequestParam Long userId,
             @Valid @RequestBody UpdateFamilyRequest updateFamilyRequest
     ){
         ApiResponse<String> response = new ApiResponse<>(
                 "family updated",
                 HttpStatus.OK,
                 LocalDateTime.now(),
-                familyService.updateFamily(updateFamilyRequest)
+                familyService.updateFamily(userId,updateFamilyRequest)
         );
         return ResponseEntity.ok(response);
     }

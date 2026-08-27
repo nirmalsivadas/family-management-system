@@ -22,20 +22,24 @@ public class UserController {
         return ResponseEntity.ok(userService.findByEmail(email));
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId){
+        return ResponseEntity.ok(userService.findByUserId(userId));
+    }
+
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody SignupRequest signupRequest){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signupRequest));
     }
 
     @PatchMapping("/change-password")
-    public ResponseEntity<ApiResponse<String>> changePassword(@Valid
-                                                              @RequestBody ChangePasswordRequest
-                                                              changePasswordRequest){
+    public ResponseEntity<ApiResponse<String>> changePassword(@RequestParam String userEmail
+            ,@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
         ApiResponse<String> response = new ApiResponse<>(
                 "password changed successfully",
                 HttpStatus.OK,
                 LocalDateTime.now(),
-                userService.changePassword(changePasswordRequest)
+                userService.changePassword(userEmail,changePasswordRequest)
         );
         return ResponseEntity.ok(response);
     }
