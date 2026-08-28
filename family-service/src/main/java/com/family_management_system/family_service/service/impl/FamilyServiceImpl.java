@@ -74,7 +74,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
-    @Cacheable(value = "view-families",key = "#userId")
+    @Cacheable(value = "view-families",key = "#userId + ':' + #status + ':' + #page + ':' + #size")
     public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size) {
         Pageable pageable = PageRequest.of(page,size,
                 Sort.by("joinDate").descending());
@@ -103,7 +103,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "view-members",key = "#userId")
+    @Cacheable(value = "view-members",key = "#userId + ':' + #page + ':' + #size")
     public Page<ViewMembers> viewMembers(Long userId,int page,int size) {
         Pageable pageable = PageRequest.of(page,size);
 

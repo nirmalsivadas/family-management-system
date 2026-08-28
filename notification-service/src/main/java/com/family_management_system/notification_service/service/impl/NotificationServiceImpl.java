@@ -29,7 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserClient userClient;
     @Override
-    @Cacheable(value = "notifications",key = "#userId")
+    @Cacheable(value = "notifications",key = "#userId + ':' + #page + ':' + #size")
     public Page<NotificationResponse> getAllNotifications(Long userId,int page,int size) {
         Pageable pageable = PageRequest.of(page,size, Sort.by("timeStamp").descending());
         Page<Notification> notifications = notificationRepository.findByUserId(userId,pageable);
@@ -47,6 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
     public List<NotificationResponse> getTop5Notifications(Long userId) {
         List<Notification> notifications = notificationRepository.findTop5ByUserIdOrderByTimeStampDesc(userId);
         return notifications.stream().map(n->new NotificationResponse(
+                n.getId(),
                 n.getTitle(),
                 n.getMessage(),
                 n.isMarkAsRead(),

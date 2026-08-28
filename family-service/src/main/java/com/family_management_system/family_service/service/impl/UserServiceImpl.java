@@ -11,6 +11,7 @@ import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.EmailService;
 import com.family_management_system.family_service.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final KafkaTemplate<String,String> kafkaTemplate;
 
     @Override
+    @Cacheable(value = "email",key = "email")
     public UserResponse findByEmail(String email) {
         User user =  userRepository.findByEmail(email);
         if (user == null) {
@@ -34,11 +36,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "total-families",key = "#userId")
     public Long totalFamilies(Long userId) {
         return familyHeadRepository.countByUserId(userId);
     }
 
     @Override
+    @Cacheable(value = "total-members",key = "#userId")
     public Long totalMembers(Long userId) {
         Long total_members =
                 familyHeadRepository.countByUserId(userId)+
@@ -96,6 +100,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "userId",key = "#userId")
     public UserResponse findByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()->
                 new RuntimeException("User not found"));
@@ -103,6 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "families-with-status",key = "#userId + ':' + #status")
     public String familiesWithStatus(Long userId, String status) {
         return String.valueOf(familyMemberRepository.countByStatus(Status.valueOf(status)));
     }
