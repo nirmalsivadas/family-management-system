@@ -1,6 +1,7 @@
 package com.family_management_system.family_service.dto;
 
 import com.family_management_system.family_service.enums.Relation;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,9 @@ import java.util.Date;
 public class RegisterFamilyMemberRequest {
     private Relation relationShipWithFamilyHead;
     private String firstName;
+    private String middleName;
     private String lastName;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
     private String gender;
     private String maritalStatus;

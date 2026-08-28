@@ -69,7 +69,7 @@ public class FamilyController {
     @PostMapping(value = "/register-family",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<RegisterResponse>> registerFamily(
             @Valid @RequestPart("request") RegisterFamilyRequest registerFamilyRequest,
-            @RequestPart(value = "photo") MultipartFile photo
+            @RequestPart(value = "photo", required = false) MultipartFile photo
             ) throws IOException {
         ApiResponse<RegisterResponse> response = new ApiResponse<>(
                 "family registration successful",
@@ -77,7 +77,7 @@ public class FamilyController {
                 LocalDateTime.now(),
                 familyService.registerFamily(registerFamilyRequest,photo)
         );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/recent-families")

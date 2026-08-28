@@ -29,4 +29,15 @@ public class GlobalExceptionHandler {
         response.setErrors(fieldErrors);
         return ResponseEntity.badRequest().body(response);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> handleException(
+            Exception ex, HttpServletRequest request
+    ){
+        ApiErrorResponse response = new ApiErrorResponse();
+        response.setMessage(ex.getMessage() != null ? ex.getMessage() : "Request failed");
+        response.setPath(request.getRequestURI());
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }

@@ -1,0 +1,56 @@
+.view-family-container {
+  padding-top: 36px;
+}
+
+.view-family-card {
+  padding: 24px;
+}
+
+.view-family-card h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.family-photo {
+  width: 88px;
+  height: 88px;
+  border-radius: 16px;
+  object-fit: cover;
+  margin-bottom: 18px;
+}
+
+.view-family-container .review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+}
+
+.view-family-container .review-item span,
+.view-family-container .member-row span {
+  display: block;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.view-family-container .review-item strong,
+.view-family-container .member-row strong {
+  display: block;
+  margin-top: 4px;
+  color: #111827;
+  font-size: 16px;
+}
+
+.view-family-container .member-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.view-family-container a {
+  color: #3827ff;
+  text-decoration: none;
+  font-weight: 700;
+}

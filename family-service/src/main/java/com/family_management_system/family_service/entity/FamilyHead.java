@@ -40,12 +40,17 @@ public class FamilyHead {
     @Column(length = 10,nullable = false)
     private Long mobileNumber;
 
+    @Column(length = 10)
+    private Long alternateMobile;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @Column(length = 50,nullable = false)
     private String firstName;
+    @Column(length = 50)
+    private String middleName;
     @Column(length = 50,nullable = false)
     private String lastName;
 
@@ -66,6 +71,9 @@ public class FamilyHead {
 
     @Column(nullable = false)
     private String occupation;
+
+    @Column(length = 50)
+    private String employment;
 
     @Column(nullable = false)
     private String profession;

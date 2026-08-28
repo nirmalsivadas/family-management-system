@@ -1,9 +1,8 @@
 package com.family_management_system.family_service.mapper;
 
+import com.family_management_system.family_service.dto.RegisterFamilyHeadRequest;
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
 import com.family_management_system.family_service.dto.RegisterResponse;
-import com.family_management_system.family_service.dto.UpdateFamilyHeadRequest;
-import com.family_management_system.family_service.dto.UpdateFamilyRequest;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.enums.Status;
 
@@ -13,7 +12,6 @@ import java.util.Date;
 public class FamilyHeadMapper {
     public static RegisterResponse toResponse(FamilyHead familyHead){
         RegisterResponse registerResponse = new RegisterResponse();
-        registerResponse.setFamilyHeadName(familyHead.getFamilyName());
         registerResponse.setFamilyHeadName(familyHead.getFirstName()+" "+familyHead.getLastName());
         registerResponse.setRegistrationDate(familyHead.getJoinDate());
         registerResponse.setStatus(familyHead.getStatus());
@@ -32,34 +30,60 @@ public class FamilyHeadMapper {
         if (registerFamilyRequest == null || registerFamilyRequest.getRegisterFamilyHeadRequest() == null) {
             throw new IllegalArgumentException("Registration request data or Family Head details cannot be null");
         }
+        RegisterFamilyHeadRequest request = registerFamilyRequest.getRegisterFamilyHeadRequest();
         FamilyHead familyHead = new FamilyHead();
-        familyHead.setFamilyName(registerFamilyRequest.getRegisterFamilyHeadRequest().getFamilyName());
-        familyHead.setMemberShipId("MEM-"+System.currentTimeMillis());
-        familyHead.setMemberShipType(registerFamilyRequest.getRegisterFamilyHeadRequest().getMemberShipType());
-        familyHead.setFirstName(registerFamilyRequest.getRegisterFamilyHeadRequest().getFirstName());
-        familyHead.setLastName(registerFamilyRequest.getRegisterFamilyHeadRequest().getLastName());
-        familyHead.setDateOfBirth(registerFamilyRequest.getRegisterFamilyHeadRequest().getDateOfBirth());
-        familyHead.setGender(registerFamilyRequest.getRegisterFamilyHeadRequest().getGender());
-        familyHead.setMaritalStatus(registerFamilyRequest.getRegisterFamilyHeadRequest().getMaritalStatus());
-        familyHead.setBloodGroup(registerFamilyRequest.getRegisterFamilyHeadRequest().getBloodGroup());
-        familyHead.setMobileNumber(registerFamilyRequest.getRegisterFamilyHeadRequest().getMobileNumber());
-        familyHead.setEmail(registerFamilyRequest.getRegisterFamilyHeadRequest().getEmail());
-        familyHead.setOccupation(registerFamilyRequest.getRegisterFamilyHeadRequest().getOccupation());
-        familyHead.setDesignation(registerFamilyRequest.getRegisterFamilyHeadRequest().getDesignation());
-        familyHead.setQualification(registerFamilyRequest.getRegisterFamilyHeadRequest().getQualification());
-        familyHead.setProfession(registerFamilyRequest.getRegisterFamilyHeadRequest().getProfession());
-        familyHead.setAnnualIncome(registerFamilyRequest.getRegisterFamilyHeadRequest().getAnnualIncome());
-        familyHead.setAddressLine1(registerFamilyRequest.getRegisterFamilyHeadRequest().getAddressLine1());
-        familyHead.setAddressLine2(registerFamilyRequest.getRegisterFamilyHeadRequest().getAddressLine2());
-        familyHead.setCity(registerFamilyRequest.getRegisterFamilyHeadRequest().getCity());
-        familyHead.setState(registerFamilyRequest.getRegisterFamilyHeadRequest().getState());
-        familyHead.setPincode(registerFamilyRequest.getRegisterFamilyHeadRequest().getPinCode());
+        familyHead.setFamilyName(request.getFamilyName());
+        familyHead.setMemberShipType(request.getMemberShipType());
+        familyHead.setFirstName(request.getFirstName());
+        familyHead.setMiddleName(request.getMiddleName());
+        familyHead.setLastName(request.getLastName());
+        familyHead.setDateOfBirth(request.getDateOfBirth());
+        familyHead.setGender(request.getGender());
+        familyHead.setMaritalStatus(request.getMaritalStatus());
+        familyHead.setBloodGroup(limit(defaultText(request.getBloodGroup(), "N/A"), 5));
+        familyHead.setMobileNumber(request.getMobileNumber());
+        familyHead.setAlternateMobile(request.getAlternateMobile());
+        familyHead.setEmail(request.getEmail());
+        familyHead.setOccupation(defaultText(request.getOccupation(), "N/A"));
+        familyHead.setEmployment(request.getEmployment());
+        familyHead.setDesignation(defaultText(request.getDesignation(), "N/A"));
+        familyHead.setQualification(defaultText(request.getQualification(), "N/A"));
+        familyHead.setProfession(defaultText(firstNonBlank(request.getProfession(), request.getEmployment(), request.getOccupation()), "N/A"));
+        familyHead.setAnnualIncome(request.getAnnualIncome() != null ? request.getAnnualIncome() : 0L);
+        familyHead.setAddressLine1(request.getAddressLine1());
+        familyHead.setAddressLine2(request.getAddressLine2());
+        familyHead.setCity(request.getCity());
+        familyHead.setState(request.getState());
+        familyHead.setPincode(request.getPinCode());
         familyHead.setPhoto(photoBytes);
-        familyHead.setCountry(registerFamilyRequest.getRegisterFamilyHeadRequest().getCountry());
+        familyHead.setCountry(request.getCountry());
         familyHead.setJoinDate(new Date());
         familyHead.setStatus(Status.PENDING);
-        familyHead.setOrganization(registerFamilyRequest.getRegisterFamilyHeadRequest().getOrganization());
-        familyHead.setRegistrationCategory(registerFamilyRequest.getRegisterFamilyHeadRequest().getRegistrationCategory());
+        familyHead.setOrganization(defaultText(request.getOrganization(), "N/A"));
+        familyHead.setRegistrationCategory(request.getRegistrationCategory());
         return familyHead;
+    }
+
+    private static String defaultText(String value, String fallback) {
+        return (value == null || value.isBlank()) ? fallback : value.trim();
+    }
+
+    private static String limit(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
+    }
+
+    private static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value.trim();
+            }
+        }
+        return null;
     }
 }

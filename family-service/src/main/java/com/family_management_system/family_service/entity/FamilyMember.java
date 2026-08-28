@@ -2,6 +2,7 @@ package com.family_management_system.family_service.entity;
 
 import com.family_management_system.family_service.enums.Relation;
 import com.family_management_system.family_service.enums.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class FamilyMember {
     @Column(length = 11)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "family_head_id")
     private FamilyHead familyHead;
@@ -32,6 +34,8 @@ public class FamilyMember {
 
     @Column(length = 50,nullable = false)
     private String firstName;
+    @Column(length = 50)
+    private String middleName;
     @Column(length = 50,nullable = false)
     private String lastName;
 

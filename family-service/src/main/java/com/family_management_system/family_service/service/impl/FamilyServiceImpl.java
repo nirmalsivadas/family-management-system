@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Year;
 import java.util.Base64;
 import java.util.List;
 
@@ -52,6 +53,7 @@ public class FamilyServiceImpl implements FamilyService {
         User user = userRepository.findById(registerFamilyRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("User not found"));
         FamilyHead familyHead = FamilyHeadMapper.toEntity(registerFamilyRequest,photoBytes);
+        familyHead.setMemberShipId(nextMembershipNumber());
         List<RegisterFamilyMemberRequest> registerFamilyMemberRequestList = registerFamilyRequest.getRegisterFamilyMemberRequests();
         List<FamilyMember> familyMembers = FamilyMemberMapper.toListEntity(registerFamilyMemberRequestList);
         long memberCount = (registerFamilyMemberRequestList!= null ? registerFamilyMemberRequestList.size() : 0) + 1;
@@ -255,5 +257,10 @@ public class FamilyServiceImpl implements FamilyService {
                 fh.getNumberOfFamilyMembers(),
                 fh.getStatus()
         )).toList();
+    }
+
+    private String nextMembershipNumber() {
+        long next = familyHeadRepository.count() + 1;
+        return String.format("FM-%d-%06d", Year.now().getValue(), next);
     }
 }

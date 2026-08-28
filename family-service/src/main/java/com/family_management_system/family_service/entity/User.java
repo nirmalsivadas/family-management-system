@@ -1,5 +1,6 @@
 package com.family_management_system.family_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<FamilyHead> familyHeads;
 
