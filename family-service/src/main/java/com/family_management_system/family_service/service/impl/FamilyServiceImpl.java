@@ -4,6 +4,7 @@ import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.FamilyMember;
 import com.family_management_system.family_service.entity.User;
+import com.family_management_system.family_service.enums.Relation;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.FamilyHeadMapper;
 import com.family_management_system.family_service.mapper.FamilyMemberMapper;
@@ -13,7 +14,7 @@ import com.family_management_system.family_service.repository.RelationRepository
 import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.FamilyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -153,16 +154,92 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
-    @CachePut(value = "update-family",key = "#userId")
+    @Transactional
+    @CacheEvict(value = {
+            "view-families",
+            "view-members",
+            "view-family",
+            "recent-families"
+    }, key = "#userId", allEntries = true)
     public String updateFamily(Long userId,UpdateFamilyRequest updateFamilyRequest) {
-//        FamilyHead familyHead = FamilyHeadMapper.updateFamilyHeadEntity(updateFamilyRequest);
-//        FamilyMember familyMember = FamilyMemberMapper.updateFamilyMemberEntity(updateFamilyRequest);
-//        familyHeadRepository.save(familyHead);
-//        familyMemberRepository.save(familyMember);
+        if (updateFamilyRequest == null || updateFamilyRequest.getMemberShipId() == null) {
+            throw new RuntimeException("Membership id is required");
+        }
+
+        FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(
+                userId,
+                updateFamilyRequest.getMemberShipId()
+        );
+
+        if (familyHead == null) {
+            throw new RuntimeException("Family not found");
+        }
+
+        updateFamilyHead(familyHead, updateFamilyRequest.getUpdateFamilyHeadRequest());
+        familyHeadRepository.save(familyHead);
+
+        UpdateFamilyMemberRequest memberRequest = updateFamilyRequest.getUpdateFamilyMemberRequest();
+        if (memberRequest != null && memberRequest.getFamilyMemberId() != null) {
+            FamilyMember familyMember = familyMemberRepository
+                    .findByIdAndFamilyHeadUserIdAndFamilyHeadMemberShipId(
+                            memberRequest.getFamilyMemberId(),
+                            userId,
+                            updateFamilyRequest.getMemberShipId()
+                    )
+                    .orElseThrow(() -> new RuntimeException("Family member not found"));
+
+            updateFamilyMember(familyMember, memberRequest);
+            familyMemberRepository.save(familyMember);
+        }
+
         kafkaTemplate.send("family-updated",
                 userId.toString(),
-                updateFamilyRequest.getUpdateFamilyHeadRequest().getFamilyName()+" was updated");
+                familyHead.getFamilyName()+" was updated");
         return "Family updated";
+    }
+
+    private void updateFamilyHead(FamilyHead familyHead, UpdateFamilyHeadRequest request) {
+        if (request == null) {
+            return;
+        }
+        if (request.getFamilyName() != null) familyHead.setFamilyName(request.getFamilyName());
+        if (request.getNumberOfFamilyMembers() != null) familyHead.setNumberOfFamilyMembers(request.getNumberOfFamilyMembers());
+        if (request.getMemberShipType() != null) familyHead.setMemberShipType(request.getMemberShipType());
+        if (request.getRegistrationCategory() != null) familyHead.setRegistrationCategory(request.getRegistrationCategory());
+        if (request.getFirstName() != null) familyHead.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) familyHead.setLastName(request.getLastName());
+        if (request.getGender() != null) familyHead.setGender(request.getGender());
+        if (request.getMaritalStatus() != null) familyHead.setMaritalStatus(request.getMaritalStatus());
+        if (request.getBloodGroup() != null) familyHead.setBloodGroup(request.getBloodGroup());
+        if (request.getMobileNumber() != null) familyHead.setMobileNumber(request.getMobileNumber());
+        if (request.getOccupation() != null) familyHead.setOccupation(request.getOccupation());
+        if (request.getProfession() != null) familyHead.setProfession(request.getProfession());
+        if (request.getQualification() != null) familyHead.setQualification(request.getQualification());
+        if (request.getDesignation() != null) familyHead.setDesignation(request.getDesignation());
+        if (request.getAnnualIncome() != null) familyHead.setAnnualIncome(request.getAnnualIncome());
+        if (request.getAddressLine1() != null) familyHead.setAddressLine1(request.getAddressLine1());
+        if (request.getAddressLine2() != null) familyHead.setAddressLine2(request.getAddressLine2());
+        if (request.getCity() != null) familyHead.setCity(request.getCity());
+        if (request.getCountry() != null) familyHead.setCountry(request.getCountry());
+        if (request.getState() != null) familyHead.setState(request.getState());
+        if (request.getPinCode() != null) familyHead.setPincode(request.getPinCode());
+        if (request.getPhoto() != null) familyHead.setPhoto(request.getPhoto());
+    }
+
+    private void updateFamilyMember(FamilyMember familyMember, UpdateFamilyMemberRequest request) {
+        if (request.getRelationShipWithFamilyHead() != null) {
+            familyMember.setRelationShipWithFamilyHead(
+                    Relation.valueOf(request.getRelationShipWithFamilyHead().trim().toUpperCase())
+            );
+        }
+        if (request.getFirstName() != null) familyMember.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) familyMember.setLastName(request.getLastName());
+        if (request.getGender() != null) familyMember.setGender(request.getGender());
+        if (request.getMaritalStatus() != null) familyMember.setMaritalStatus(request.getMaritalStatus());
+        if (request.getBloodGroup() != null) familyMember.setBloodGroup(request.getBloodGroup());
+        if (request.getMobileNumber() != null) familyMember.setMobileNumber(request.getMobileNumber());
+        if (request.getOccupation() != null) familyMember.setOccupation(request.getOccupation());
+        if (request.getEmployment() != null) familyMember.setEmployment(request.getEmployment());
     }
 
     @Override

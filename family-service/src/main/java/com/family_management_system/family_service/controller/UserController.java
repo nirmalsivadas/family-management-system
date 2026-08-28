@@ -80,7 +80,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}/{status}")
+    @PostMapping("/{userId}/{status}")
     public ResponseEntity<ApiResponse<String>> changeStatus(@PathVariable Long userId,
                                                            @PathVariable String status){
         ApiResponse<String> response = new ApiResponse<>(
@@ -88,6 +88,18 @@ public class UserController {
                 HttpStatus.OK,
                 LocalDateTime.now(),
                 userService.changeStatus(userId,status)
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{userId}/{status}")
+    public ResponseEntity<ApiResponse<String>> familiesWithStatus(@PathVariable Long userId,
+                                                            @PathVariable String status){
+        ApiResponse<String> response = new ApiResponse<>(
+                "Number of families with" + status +" status fetched",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                userService.familiesWithStatus(userId,status)
         );
         return ResponseEntity.ok(response);
     }

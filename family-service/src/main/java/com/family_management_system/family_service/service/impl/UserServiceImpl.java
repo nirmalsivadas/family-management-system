@@ -80,16 +80,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long pendingStatus(Long userId) {
-        return familyMemberRepository.countByStatus(Status.PENDING);
-    }
-
-    @Override
-    public Long confirmedStatus(Long userId) {
-        return familyMemberRepository.countByStatus(Status.CONFIRMED);
-    }
-
-    @Override
     public String changeStatus(Long userId, String status) {
         FamilyHead familyHead = familyHeadRepository.findByUserId(userId);
         familyHead.setStatus(Status.valueOf(status));
@@ -110,5 +100,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(()->
                 new RuntimeException("User not found"));
         return UserMapper.toResponse(user);
+    }
+
+    @Override
+    public String familiesWithStatus(Long userId, String status) {
+        return String.valueOf(familyMemberRepository.countByStatus(Status.valueOf(status)));
     }
 }

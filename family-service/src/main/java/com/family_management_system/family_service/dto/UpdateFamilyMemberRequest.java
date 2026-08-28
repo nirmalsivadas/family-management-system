@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateFamilyMemberRequest {
+    private Long familyMemberId;
     private String relationShipWithFamilyHead;
     private String firstName;
     private String lastName;

@@ -25,7 +25,7 @@ function RecentNotification(){
   },[])
 
   if(loading){
-    <div className="recent-notifications-container">Loading notifications...</div>
+    return <div className="recent-notifications-container">Loading notifications...</div>
   }
   return(
     <div className="recent-notifications-container">

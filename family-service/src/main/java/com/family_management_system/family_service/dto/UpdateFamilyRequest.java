@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateFamilyRequest {
+    private String memberShipId;
     private UpdateFamilyHeadRequest updateFamilyHeadRequest;
     private UpdateFamilyMemberRequest updateFamilyMemberRequest;
 }

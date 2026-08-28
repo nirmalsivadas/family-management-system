@@ -34,6 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
         Pageable pageable = PageRequest.of(page,size, Sort.by("timeStamp").descending());
         Page<Notification> notifications = notificationRepository.findByUserId(userId,pageable);
         return notifications.map(n->new NotificationResponse(
+                n.getId(),
                 n.getTitle(),
                 n.getMessage(),
                 n.isMarkAsRead(),

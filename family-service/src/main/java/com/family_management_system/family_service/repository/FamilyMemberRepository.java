@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Long> {
@@ -17,4 +18,9 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Long>
     Page<FamilyMember> findByFamilyHeadUserId(Long userId, Pageable pageable);
     List<FamilyMember> findByFamilyHeadMemberShipId(String memberShipId);
     Page<FamilyMember> findByFamilyHeadUserIdOrderByFamilyHeadJoinDateDesc(Long userId, Pageable pageable);
+    Optional<FamilyMember> findByIdAndFamilyHeadUserIdAndFamilyHeadMemberShipId(
+            Long id,
+            Long userId,
+            String memberShipId
+    );
 }

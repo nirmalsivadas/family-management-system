@@ -2,6 +2,8 @@ package com.family_management_system.family_service.mapper;
 
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
 import com.family_management_system.family_service.dto.RegisterResponse;
+import com.family_management_system.family_service.dto.UpdateFamilyHeadRequest;
+import com.family_management_system.family_service.dto.UpdateFamilyRequest;
 import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.enums.Status;
 
@@ -60,32 +62,4 @@ public class FamilyHeadMapper {
         familyHead.setRegistrationCategory(registerFamilyRequest.getRegisterFamilyHeadRequest().getRegistrationCategory());
         return familyHead;
     }
-//
-//    public static FamilyHead updateFamilyHeadEntity(UpdateFamilyRequest updateFamilyRequest){
-//        FamilyHead familyHead = new FamilyHead();
-//
-//        private String familyName;
-//        private Long numberOfFamilyMembers;
-//        private String memberShipType;
-//        private String registrationCategory;
-//        private String firstName;
-//        private String lastName;
-//        private String gender;
-//        private String maritalStatus;
-//        private String bloodGroup;
-//        private Long mobileNumber;
-//        private String occupation;
-//        private String profession;
-//        private String qualification;
-//        private String designation;
-//        private Long annualIncome;
-//        private String addressLine1;
-//        private String addressLine2;
-//        private String city;
-//        private String country;
-//        private String state;
-//        private String pinCode;
-//        private byte[] photo;
-//        return familyHead;
-//    }
 }

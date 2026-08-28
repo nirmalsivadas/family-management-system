@@ -13,11 +13,10 @@ public interface UserService {
     Long totalMembers(Long userId);
     String updateProfile(UpdateProfileRequest updateProfileRequest);
     String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest);
-    Long pendingStatus(Long userId);
-    Long confirmedStatus(Long userId);
     String changeStatus(Long userId, String status);
 
     UserResponse createUser(SignupRequest signupRequest);
 
     UserResponse findByUserId(Long userId);
+    String familiesWithStatus(Long userId, String status);
 }

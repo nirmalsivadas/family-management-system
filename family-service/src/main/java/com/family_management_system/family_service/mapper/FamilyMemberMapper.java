@@ -2,8 +2,10 @@ package com.family_management_system.family_service.mapper;
 
 import com.family_management_system.family_service.dto.RegisterFamilyMemberRequest;
 import com.family_management_system.family_service.dto.RegisterFamilyRequest;
+import com.family_management_system.family_service.dto.UpdateFamilyMemberRequest;
 import com.family_management_system.family_service.dto.UpdateFamilyRequest;
 import com.family_management_system.family_service.entity.FamilyMember;
+import com.family_management_system.family_service.enums.Relation;
 import com.family_management_system.family_service.enums.Status;
 
 import java.util.Collections;
@@ -42,18 +44,4 @@ public class FamilyMemberMapper {
                 .map(FamilyMemberMapper::toEntity)
                 .collect(Collectors.toList());
     }
-
-//    public static FamilyMember updateFamilyMemberEntity(UpdateFamilyRequest updateFamilyRequest){
-//        FamilyMember familyMember = new FamilyMember();
-//        familyMember.setRelation(updateFamilyRequest.getUpdateFamilyMemberRequest().getRelationShipWithFamilyHead());
-//        familyMember.setFirstName(updateFamilyRequest.getUpdateFamilyMemberRequest().getFirstName());
-//        familyMember.setLastName(updateFamilyRequest.getUpdateFamilyMemberRequest().getLastName());
-//        familyMember.setGender(updateFamilyRequest.getUpdateFamilyMemberRequest().getGender());
-//        familyMember.setMaritalStatus(updateFamilyRequest.getUpdateFamilyMemberRequest().getMaritalStatus());
-//        familyMember.setBloodGroup(updateFamilyRequest.getUpdateFamilyMemberRequest().getBloodGroup());
-//        familyMember.setMobileNumber(updateFamilyRequest.getUpdateFamilyMemberRequest().getMobileNumber());
-//        familyMember.setOccupation(updateFamilyRequest.getUpdateFamilyMemberRequest().getOccupation());
-//        familyMember.setEmployment(updateFamilyRequest.getUpdateFamilyMemberRequest().getEmployment());
-//        return familyMember;
-//    }
 }
