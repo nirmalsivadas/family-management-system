@@ -49,7 +49,7 @@ function RecentFamilies(){
             <span>{family.familyHead}</span>
             <span>{family.numberOfFamilyMembers}</span>
             <span className={`status-pill ${family.status?.toLowerCase()}`}>{family.status}</span>
-            <Link to='/view-families'>View</Link>
+            <Link to={`/view-family/${family.membershipId}`}>View</Link>
           </div>
         ))}
         {families.length === 0 && <p className="empty-state">No recent families found.</p>}

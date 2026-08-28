@@ -60,4 +60,17 @@ public class NotificationController {
         );
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/mark-all-as-read")
+    public ResponseEntity<ApiResponse<String>> markAllAsRead(
+            @RequestParam Long userId
+    ){
+        ApiResponse<String> response = new ApiResponse(
+                "marked all notifications as read",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                notificationService.markAllAsRead(userId)
+        );
+        return ResponseEntity.ok(response);
+    }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     Page<Notification> findByUserId(Long userId, Pageable pageable);
     List<Notification> findTop5ByUserIdOrderByTimeStampDesc(Long userId);
+    List<Notification> findByUserIdAndMarkAsReadFalse(Long userId);
 }

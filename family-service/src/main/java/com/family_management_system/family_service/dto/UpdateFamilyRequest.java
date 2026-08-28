@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,4 +15,5 @@ public class UpdateFamilyRequest {
     private String memberShipId;
     private UpdateFamilyHeadRequest updateFamilyHeadRequest;
     private UpdateFamilyMemberRequest updateFamilyMemberRequest;
+    private List<UpdateFamilyMemberRequest> updateFamilyMemberRequests;
 }

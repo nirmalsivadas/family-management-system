@@ -13,9 +13,10 @@ public interface FamilyService {
     RegisterResponse registerFamily(RegisterFamilyRequest registerFamilyRequest
     , MultipartFile photo) throws IOException;
     Page<ViewFamilies> viewFamilies(Long userId, String status,
-                                    int page, int size);
-    Page<ViewMembers> viewMembers(Long userId,int page,int size);
+                                    int page, int size, String query);
+    Page<ViewMembers> viewMembers(Long userId,int page,int size, String query);
     ViewFamily viewFamily(Long userId,String memberShipId);
     String updateFamily(Long userId, UpdateFamilyRequest updateFamilyRequest);
+    String changeStatus(Long userId, String memberShipId, String status);
     List<RecentFamilies> recentFamilies(Long userId);
 }

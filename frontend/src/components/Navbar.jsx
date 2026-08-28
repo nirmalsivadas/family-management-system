@@ -57,9 +57,10 @@ function Navbar(){
   const [notificationsOpen,setNotificationsOpen] = useState(false);
   const [topNotifications,setTopNotifications] = useState([]);
   const [notificationsLoading,setNotificationsLoading] = useState(false);
+  const [search,setSearch] = useState('');
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
-  const name = user?.firstName || user?.userName || 'User';
+  const name = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.userName || 'User';
   const email = user?.email || '';
   const initials = name
     .split(' ')
@@ -93,10 +94,23 @@ function Navbar(){
 
   return(
     <header className="navbar">
-      <label className="search-wrap">
+      <form
+        className="search-wrap"
+        onSubmit={(event)=>{
+          event.preventDefault();
+          const value = search.trim();
+          navigate(value ? `/view-families?query=${encodeURIComponent(value)}` : '/view-families');
+        }}
+      >
         <span>Search</span>
-        <input type="text" placeholder="Search families, members..." className="search-input" />
-      </label>
+        <input
+          type="text"
+          placeholder="Search families, members..."
+          className="search-input"
+          value={search}
+          onChange={(event)=>setSearch(event.target.value)}
+        />
+      </form>
       <div className="navbar-actions">
         <button
           type="button"
@@ -151,7 +165,7 @@ function Navbar(){
           <span className="avatar">{initials}</span>
           <span>
             <strong>{name}</strong>
-            <small>Admin</small>
+            <small>Member</small>
           </span>
         </button>
         {profileOpen && (
@@ -162,7 +176,12 @@ function Navbar(){
             <Link to="/settings" onClick={()=>setProfileOpen(false)}>Settings</Link>
             <button
               type="button"
-              onClick={()=>{
+              onClick={async ()=>{
+                try{
+                  await api.post('/auth/logout');
+                }catch(err){
+                  console.error('Logout failed:', err);
+                }
                 localStorage.removeItem('user');
                 navigate('/login');
               }}

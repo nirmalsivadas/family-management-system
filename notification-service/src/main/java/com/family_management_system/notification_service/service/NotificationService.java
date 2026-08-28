@@ -12,5 +12,6 @@ public interface NotificationService {
     List<NotificationResponse> getTop5Notifications(Long userId);
 
     String markAsRead(Long userId,Long notificationId);
+    String markAllAsRead(Long userId);
 
 }

@@ -27,6 +27,31 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void confirmPasswordChange(String userEmail) {
+        JavaMailSenderImpl javaMailSenderImpl = mailSender();
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
+        message.setTo(userEmail);
+        message.setSubject("Password Change Success");
+        message.setText("Dear user, you have successfully changed your password.\n" +
+                "From now on please use the new password for login.");
+        javaMailSenderImpl.send(message);
+    }
+
+    @Override
+    public void sendTemporaryPassword(String userEmail, String temporaryPassword) {
+        JavaMailSenderImpl javaMailSenderImpl = mailSender();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
+        message.setTo(userEmail);
+        message.setSubject("Temporary Password");
+        message.setText("Dear user, a temporary password has been created for your FamilyMgmt account.\n" +
+                "Temporary password: " + temporaryPassword + "\n" +
+                "Please sign in and change this password immediately.");
+        javaMailSenderImpl.send(message);
+    }
+
+    private JavaMailSenderImpl mailSender() {
         JavaMailSenderImpl javaMailSenderImpl = new JavaMailSenderImpl();
         javaMailSenderImpl.setHost(senderHost);
         javaMailSenderImpl.setPort(senderPort);
@@ -36,13 +61,6 @@ public class EmailServiceImpl implements EmailService {
         Properties props = javaMailSenderImpl.getJavaMailProperties();
         props.put("mail.smtp.auth","true");
         props.put("mail.smtp.starttls.enable","true");
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderEmail);
-        message.setTo(userEmail);
-        message.setSubject("Password Change Success");
-        message.setText("Dear user, you have successfully changed your password.\n" +
-                "From now on please use the new password for login.");
-        javaMailSenderImpl.send(message);
+        return javaMailSenderImpl;
     }
 }

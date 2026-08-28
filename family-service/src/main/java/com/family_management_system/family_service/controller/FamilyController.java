@@ -2,7 +2,6 @@ package com.family_management_system.family_service.controller;
 
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.service.FamilyService;
-import com.family_management_system.family_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,13 +27,14 @@ public class FamilyController {
             @RequestParam Long userId,
             @RequestParam(defaultValue = "ALL") String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String query
     ){
         ApiResponse<Page<ViewFamilies>> response = new ApiResponse<>(
                 "fetched families",
                 HttpStatus.OK,
                 LocalDateTime.now(),
-                familyService.viewFamilies(userId,status,page,size)
+                familyService.viewFamilies(userId,status,page,size,query)
         );
         return ResponseEntity.ok(response);
     }
@@ -43,12 +43,13 @@ public class FamilyController {
     public ResponseEntity<ApiResponse<Page<ViewMembers>>> viewMembers(
             @RequestParam Long userId,
             @RequestParam(defaultValue = "0")int page,
-            @RequestParam(defaultValue = "10")int size){
+            @RequestParam(defaultValue = "10")int size,
+            @RequestParam(defaultValue = "") String query){
         ApiResponse<Page<ViewMembers>> response = new ApiResponse<>(
                 "fetched members",
                 HttpStatus.OK,
                 LocalDateTime.now(),
-                familyService.viewMembers(userId,page,size)
+                familyService.viewMembers(userId,page,size,query)
         );
         return ResponseEntity.ok(response);
     }
@@ -100,6 +101,21 @@ public class FamilyController {
                 HttpStatus.OK,
                 LocalDateTime.now(),
                 familyService.updateFamily(userId,updateFamilyRequest)
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{memberShipId}/status")
+    public ResponseEntity<ApiResponse<String>> changeStatus(
+            @RequestParam Long userId,
+            @PathVariable String memberShipId,
+            @RequestParam String status
+    ){
+        ApiResponse<String> response = new ApiResponse<>(
+                "status changed",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                familyService.changeStatus(userId, memberShipId, status)
         );
         return ResponseEntity.ok(response);
     }

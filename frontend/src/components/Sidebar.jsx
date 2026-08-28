@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 function Sidebar(){
   const user = JSON.parse(localStorage.getItem('user'));
-  const name = user?.firstName || user?.userName || 'User';
+  const name = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.userName || 'User';
   const email = user?.email || '';
   const initials = name
     .split(' ')

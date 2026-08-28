@@ -8,6 +8,7 @@ import com.family_management_system.notification_service.repository.Notification
 import com.family_management_system.notification_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,12 +57,29 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @CacheEvict(value = {"notifications", "top5notifications"}, allEntries = true)
     public String markAsRead(Long userId,Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(()->new RuntimeException("Notification not found"));
+        if (notification.getUser() == null || !userId.equals(notification.getUser().getId())) {
+            throw new RuntimeException("Notification not found");
+        }
         notification.setMarkAsRead(true);
         notificationRepository.save(notification);
         return "Notification marked as read";
+    }
+
+    @Override
+    @CacheEvict(value = {"notifications", "top5notifications"}, allEntries = true)
+    public String markAllAsRead(Long userId) {
+        List<Notification> unread = notificationRepository.findByUserIdAndMarkAsReadFalse(userId);
+        for (Notification notification : unread) {
+            notification.setMarkAsRead(true);
+        }
+        if (!unread.isEmpty()) {
+            notificationRepository.saveAll(unread);
+        }
+        return "All notifications marked as read";
     }
 
     @KafkaListener(topics = {

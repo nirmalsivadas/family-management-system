@@ -26,7 +26,9 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getFirstName()
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getMobileNumber()
         );
     }
 
@@ -42,7 +44,9 @@ public class AuthServiceImpl implements AuthService {
         AuthResponse response = new AuthResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getFirstName()
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getMobileNumber()
         );
         return new LoginResult(response,token);
     }

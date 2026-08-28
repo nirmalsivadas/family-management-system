@@ -14,6 +14,7 @@ function Signup(){
     confirmPassword: '',
   })
   const [error,setError] = useState('');
+  const [accepted,setAccepted] = useState(false);
   const [loading,setLoading] = useState(false);
 
   function handleChange(e){
@@ -28,6 +29,10 @@ function Signup(){
     setError('');
     if(form.password !== form.confirmPassword){
       setError('Passwords do not match');
+      return;
+    }
+    if(!accepted){
+      setError('Please accept the terms and conditions');
       return;
     }
     setLoading(true);
@@ -86,7 +91,7 @@ function Signup(){
           <input type="password" id='confirmPassword' name='confirmPassword' value={form.confirmPassword} onChange={handleChange} placeholder="Confirm password"/>
         </div>
         <div className="terms-and-conditions">
-          <input id="termsAndConditions" type="checkbox" />
+          <input id="termsAndConditions" type="checkbox" checked={accepted} onChange={(e)=>setAccepted(e.target.checked)} />
           <label htmlFor="termsAndConditions">I agree to the <Link to="/terms-and-conditions">terms and conditions</Link></label>
         </div>
         <button type="submit" disabled={loading}>

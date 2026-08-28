@@ -9,6 +9,8 @@ function Overview(){
   const [confirmed,setConfirmed] = useState(null);
   const [loading,setLoading] = useState(true);
   const [userName,setUserName] = useState('User');
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   useEffect(()=>{
     const user = JSON.parse(localStorage.getItem('user'));
@@ -47,7 +49,7 @@ function Overview(){
 
   return(
     <div className="overview-container">
-      <h1>Good afternoon, {userName} 👋</h1>
+      <h1>{greeting}, {userName} 👋</h1>
       <p>Manage your family memberships and member information.</p>
       <div className="overview-stats">
       <div className="overview-card">

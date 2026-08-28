@@ -58,6 +58,19 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(
+            @RequestBody ForgotPasswordRequest forgotPasswordRequest
+    ){
+        ApiResponse<String> response = new ApiResponse<>(
+                "temporary password sent",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                userService.resetPassword(forgotPasswordRequest.getEmail())
+        );
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{userId}/total-families")
     public ResponseEntity<ApiResponse<Long>> totalFamilies(@PathVariable Long userId){
         ApiResponse<Long> response = new ApiResponse<>(
@@ -76,18 +89,6 @@ public class UserController {
                 HttpStatus.OK,
                 LocalDateTime.now(),
                 userService.totalMembers(userId)
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{userId}/{status}")
-    public ResponseEntity<ApiResponse<String>> changeStatus(@PathVariable Long userId,
-                                                           @PathVariable String status){
-        ApiResponse<String> response = new ApiResponse<>(
-                "Status successfully changed",
-                HttpStatus.OK,
-                LocalDateTime.now(),
-                userService.changeStatus(userId,status)
         );
         return ResponseEntity.ok(response);
     }

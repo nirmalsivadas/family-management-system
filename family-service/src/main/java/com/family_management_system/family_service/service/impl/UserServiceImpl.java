@@ -1,7 +1,6 @@
 package com.family_management_system.family_service.service.impl;
 
 import com.family_management_system.family_service.dto.*;
-import com.family_management_system.family_service.entity.FamilyHead;
 import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
 import com.family_management_system.family_service.mapper.UserMapper;
@@ -13,7 +12,10 @@ import com.family_management_system.family_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,8 @@ public class UserServiceImpl implements UserService {
     private final FamilyHeadRepository familyHeadRepository;
     private final FamilyMemberRepository familyMemberRepository;
     private final KafkaTemplate<String,String> kafkaTemplate;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
     @Cacheable(value = "email",key = "email")
@@ -75,10 +79,12 @@ public class UserServiceImpl implements UserService {
         )){
             throw new RuntimeException("Passwords do not match");
         }
-        user.setPassword(changePasswordRequest.getNewPassword());
-        emailService.confirmPasswordChange
-                (userEmail);
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
+        try {
+            emailService.confirmPasswordChange(userEmail);
+        } catch (Exception ignored) {
+        }
         kafkaTemplate.send("password-changed",
                 changePasswordRequest.getUserId().toString(),
                 "A new password was created");
@@ -86,12 +92,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String changeStatus(Long userId, String status) {
-        FamilyHead familyHead = familyHeadRepository.findByUserId(userId);
-        familyHead.setStatus(Status.valueOf(status));
-        familyHeadRepository.save(familyHead);
-        kafkaTemplate.send("status-changed",userId.toString(),"Status changed");
-        return "Status changed";
+    public String resetPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        String temporaryPassword = generateTemporaryPassword();
+        user.setPassword(passwordEncoder.encode(temporaryPassword));
+        userRepository.save(user);
+        kafkaTemplate.send("password-changed",
+                user.getId().toString(),
+                "A temporary password was issued");
+        try {
+            emailService.sendTemporaryPassword(email, temporaryPassword);
+            return "Temporary password sent to your email";
+        } catch (Exception e) {
+            return "Email delivery failed. Temporary password: " + temporaryPassword;
+        }
     }
 
     @Override
@@ -113,5 +130,14 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "families-with-status",key = "#userId + ':' + #status")
     public Long familiesWithStatus(Long userId, String status) {
         return familyHeadRepository.countByUserIdAndStatus(userId, Status.valueOf(status));
+    }
+
+    private String generateTemporaryPassword() {
+        String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            builder.append(alphabet.charAt(RANDOM.nextInt(alphabet.length())));
+        }
+        return builder.toString();
     }
 }

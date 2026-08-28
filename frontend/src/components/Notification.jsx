@@ -115,11 +115,7 @@ function Notification() {
     );
 
     try{
-      await Promise.all(
-        unreadNotifications.map((notification)=>
-          api.get(`/notification/mark-as-read/${notification.notificationId}?userId=${userId}`)
-        )
-      );
+      await api.post(`/notification/mark-all-as-read?userId=${userId}`);
     }catch(err){
       console.error('Error marking all notifications as read:', err);
       setError('Unable to mark all notifications as read.');

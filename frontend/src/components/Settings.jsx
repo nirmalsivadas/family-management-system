@@ -1,4 +1,5 @@
 import React,{useEffect,useMemo,useState} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import api from '../api/axios';
 import './Settings.css';
 
@@ -7,10 +8,8 @@ function getStoredUser(){
 }
 
 function Settings(){
-  const [activeTab,setActiveTab] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('tab') || 'account';
-  });
+  const [searchParams,setSearchParams] = useSearchParams();
+  const [activeTab,setActiveTab] = useState(() => searchParams.get('tab') || 'account');
   const [message,setMessage] = useState('');
   const [error,setError] = useState('');
   const [saving,setSaving] = useState(false);
@@ -28,6 +27,16 @@ function Settings(){
     newPassword: '',
     confirmNewPassword: ''
   });
+  const [preferences,setPreferences] = useState(()=>{
+    try{
+      return JSON.parse(localStorage.getItem('notificationPreferences')) || {
+        email: true,
+        status: true
+      };
+    }catch{
+      return {email: true, status: true};
+    }
+  });
   const initials = useMemo(()=>{
     const source = `${profile.firstName} ${profile.lastName}`.trim() || profile.email || 'User';
     return source
@@ -38,6 +47,10 @@ function Settings(){
       .slice(0,2)
       .toUpperCase();
   },[profile.firstName,profile.lastName,profile.email]);
+
+  useEffect(()=>{
+    setActiveTab(searchParams.get('tab') || 'account');
+  },[searchParams]);
 
   useEffect(()=>{
     const user = getStoredUser();
@@ -55,7 +68,13 @@ function Settings(){
           email: freshProfile.email || '',
           mobileNumber: freshProfile.mobileNumber || ''
         });
-        localStorage.setItem('user', JSON.stringify(freshProfile));
+        localStorage.setItem('user', JSON.stringify({
+          id: freshProfile.id,
+          firstName: freshProfile.firstName,
+          lastName: freshProfile.lastName,
+          email: freshProfile.email,
+          mobileNumber: freshProfile.mobileNumber
+        }));
       })
       .catch((err)=>console.error('Error fetching settings profile:', err));
   },[]);
@@ -135,9 +154,9 @@ function Settings(){
       </div>
 
       <div className="settings-tabs">
-        <button className={activeTab === 'account' ? 'active' : ''} onClick={()=>setActiveTab('account')}>Account</button>
-        <button className={activeTab === 'security' ? 'active' : ''} onClick={()=>setActiveTab('security')}>Security</button>
-        <button className={activeTab === 'notifications' ? 'active' : ''} onClick={()=>setActiveTab('notifications')}>Notifications</button>
+        <button className={activeTab === 'account' ? 'active' : ''} onClick={()=>{setActiveTab('account'); setSearchParams({});}}>Account</button>
+        <button className={activeTab === 'security' ? 'active' : ''} onClick={()=>{setActiveTab('security'); setSearchParams({tab: 'security'});}}>Security</button>
+        <button className={activeTab === 'notifications' ? 'active' : ''} onClick={()=>{setActiveTab('notifications'); setSearchParams({tab: 'notifications'});}}>Notifications</button>
       </div>
 
       {message && <div className="settings-message success">{message}</div>}
@@ -150,7 +169,7 @@ function Settings(){
             <div>
               <h2>{`${profile.firstName} ${profile.lastName}`.trim() || 'User'}</h2>
               <p>{profile.email}</p>
-              <button type="button">Change photo</button>
+              <button type="button" disabled>Photo upload coming in a later update</button>
             </div>
           </div>
 
@@ -206,14 +225,30 @@ function Settings(){
               <strong>Email notifications</strong>
               <small>Receive membership updates by email.</small>
             </span>
-            <input type="checkbox" defaultChecked />
+            <input
+              type="checkbox"
+              checked={preferences.email}
+              onChange={(event)=>{
+                const next = {...preferences, email: event.target.checked};
+                setPreferences(next);
+                localStorage.setItem('notificationPreferences', JSON.stringify(next));
+              }}
+            />
           </div>
           <div className="preference-row">
             <span>
               <strong>Status updates</strong>
               <small>Notify me when family registrations change status.</small>
             </span>
-            <input type="checkbox" defaultChecked />
+            <input
+              type="checkbox"
+              checked={preferences.status}
+              onChange={(event)=>{
+                const next = {...preferences, status: event.target.checked};
+                setPreferences(next);
+                localStorage.setItem('notificationPreferences', JSON.stringify(next));
+              }}
+            />
           </div>
         </section>
       )}

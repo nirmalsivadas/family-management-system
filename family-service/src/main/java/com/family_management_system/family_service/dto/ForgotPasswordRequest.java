@@ -1,4 +1,4 @@
-package com.family_management_system.auth_service.dto;
+package com.family_management_system.family_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
-    private Long id;
+public class ForgotPasswordRequest {
     private String email;
-    private String firstName;
-    private String lastName;
-    private String mobileNumber;
 }

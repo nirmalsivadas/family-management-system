@@ -36,8 +36,13 @@ function Profile(){
     api.get(`/users/${storedUser.id}`)
       .then((response)=>{
         const freshProfile = response.data?.data ?? response.data;
-        setProfile(freshProfile);
-        localStorage.setItem("user", JSON.stringify(freshProfile));
+        const nextProfile = {
+          ...storedUser,
+          ...freshProfile,
+          password: undefined,
+        };
+        setProfile(nextProfile);
+        localStorage.setItem("user", JSON.stringify(nextProfile));
       })
       .catch((err)=>{
         console.error("Error fetching profile:", err);
@@ -58,7 +63,7 @@ function Profile(){
         <div className="profile-identity">
           <h2>{fullName}</h2>
           <p>{profile.email || "No email available"}</p>
-          <span>Member since January 2026</span>
+          <span>Signed-in family administrator</span>
           <div className="profile-actions">
             <Link to="/settings">Edit Profile</Link>
             <Link to="/settings?tab=security">Change Password</Link>
@@ -82,16 +87,12 @@ function Profile(){
             <dd>{profile.mobileNumber || "-"}</dd>
           </div>
           <div>
-            <dt>Account Created</dt>
-            <dd>15 January 2026</dd>
+            <dt>User ID</dt>
+            <dd>{profile.id || "-"}</dd>
           </div>
           <div>
             <dt>Role</dt>
-            <dd>Administrator</dd>
-          </div>
-          <div>
-            <dt>Last Login</dt>
-            <dd>Today</dd>
+            <dd>Family Administrator</dd>
           </div>
         </dl>
       </section>

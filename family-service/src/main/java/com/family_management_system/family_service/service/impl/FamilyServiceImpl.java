@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -41,6 +42,16 @@ public class FamilyServiceImpl implements FamilyService {
     private final KafkaTemplate<String,String> kafkaTemplate;
 
     @Override
+    @Transactional
+    @CacheEvict(value = {
+            "view-families",
+            "view-members",
+            "view-family",
+            "recent-families",
+            "total-families",
+            "total-members",
+            "families-with-status"
+    }, allEntries = true)
     public RegisterResponse registerFamily(
             RegisterFamilyRequest registerFamilyRequest,
             MultipartFile photo){
@@ -76,21 +87,22 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
-    @Cacheable(value = "view-families",key = "#userId + ':' + #status + ':' + #page + ':' + #size")
-    public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size) {
+    @Cacheable(value = "view-families",key = "#userId + ':' + #status + ':' + #page + ':' + #size + ':' + #query")
+    public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size, String query) {
         Pageable pageable = PageRequest.of(page,size,
                 Sort.by("joinDate").descending());
 
-        Page<FamilyHead> familyHeads;
+        Status statusEnum = null;
+        if (status != null && !status.trim().isEmpty() && !status.trim().equalsIgnoreCase("ALL")) {
+            statusEnum = Status.valueOf(status.trim().toUpperCase());
+        }
 
-        if (status==null || status.trim().equalsIgnoreCase("ALL")){
-            familyHeads = familyHeadRepository.findByUserId(userId,pageable);
-        }
-        else {
-            Status statusEnum = Status.valueOf(status.trim().toUpperCase());
-            familyHeads =
-                    familyHeadRepository.findByUserIdAndStatus(userId,statusEnum,pageable);
-        }
+        Page<FamilyHead> familyHeads = familyHeadRepository.searchByUser(
+                userId,
+                statusEnum,
+                query,
+                pageable
+        );
 
         return familyHeads.map(fh->
                 new ViewFamilies(
@@ -105,12 +117,11 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "view-members",key = "#userId + ':' + #page + ':' + #size")
-    public Page<ViewMembers> viewMembers(Long userId,int page,int size) {
-        Pageable pageable = PageRequest.of(page,size);
+    @Cacheable(value = "view-members",key = "#userId + ':' + #page + ':' + #size + ':' + #query")
+    public Page<ViewMembers> viewMembers(Long userId,int page,int size, String query) {
+        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
 
-        Page<FamilyMember> familyMembers = familyMemberRepository
-                .findByFamilyHeadUserIdOrderByFamilyHeadJoinDateDesc(userId,pageable);
+        Page<FamilyMember> familyMembers = familyMemberRepository.searchByUser(userId, query, pageable);
 
         return familyMembers.map(fh->
                 new ViewMembers(
@@ -129,6 +140,9 @@ public class FamilyServiceImpl implements FamilyService {
     @Cacheable(value = "view-family",key = "#userId + '_' + #memberShipId")
     public ViewFamily viewFamily(Long userId,String memberShipId) {
         FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(userId,memberShipId);
+        if (familyHead == null) {
+            throw new RuntimeException("Family not found");
+        }
 
         ViewFamily viewFamily = new ViewFamily();
         viewFamily.setMembershipId(familyHead.getMemberShipId());
@@ -137,14 +151,30 @@ public class FamilyServiceImpl implements FamilyService {
         viewFamily.setNumberOfFamilyMembers(familyHead.getNumberOfFamilyMembers());
         viewFamily.setFamilyMemberShipType(familyHead.getMemberShipType());
         viewFamily.setStatus(familyHead.getStatus().name());
-        viewFamily.setAddress(familyHead.getAddressLine1()+" "+familyHead.getAddressLine2());
+        viewFamily.setRegistrationCategory(familyHead.getRegistrationCategory());
+        viewFamily.setAddress(joinAddress(familyHead.getAddressLine1(), familyHead.getAddressLine2()));
+        viewFamily.setAddressLine1(familyHead.getAddressLine1());
+        viewFamily.setAddressLine2(familyHead.getAddressLine2());
+        viewFamily.setCity(familyHead.getCity());
+        viewFamily.setState(familyHead.getState());
+        viewFamily.setCountry(familyHead.getCountry());
+        viewFamily.setPinCode(familyHead.getPincode());
+        viewFamily.setFirstName(familyHead.getFirstName());
+        viewFamily.setMiddleName(familyHead.getMiddleName());
+        viewFamily.setLastName(familyHead.getLastName());
         viewFamily.setMobileNumber(familyHead.getMobileNumber());
+        viewFamily.setAlternateMobile(familyHead.getAlternateMobile());
         viewFamily.setFamilyHeadGender(familyHead.getGender());
+        viewFamily.setDateOfBirth(familyHead.getDateOfBirth());
+        viewFamily.setMaritalStatus(familyHead.getMaritalStatus());
         viewFamily.setFamilHeadName(familyHead.getFirstName()+" "+familyHead.getLastName());
         viewFamily.setBloodGroup(familyHead.getBloodGroup());
         viewFamily.setEmail(familyHead.getEmail());
         viewFamily.setOccupation(familyHead.getOccupation());
+        viewFamily.setEmployment(familyHead.getEmployment());
         viewFamily.setDesignation(familyHead.getDesignation());
+        viewFamily.setQualification(familyHead.getQualification());
+        viewFamily.setProfession(familyHead.getProfession());
         viewFamily.setAnnualIncome(familyHead.getAnnualIncome());
         viewFamily.setOrganization(familyHead.getOrganization());
         if (familyHead.getPhoto()!=null && familyHead.getPhoto().length>0){
@@ -153,7 +183,22 @@ public class FamilyServiceImpl implements FamilyService {
         }
         List<FamilyMember> familyMembers = familyMemberRepository
                 .findByFamilyHeadMemberShipId(memberShipId);
-        viewFamily.setFamilyMembers(familyMembers);
+        viewFamily.setFamilyMembers(familyMembers.stream().map(member -> new FamilyMemberView(
+                member.getId(),
+                member.getRelationShipWithFamilyHead(),
+                member.getFirstName(),
+                member.getMiddleName(),
+                member.getLastName(),
+                member.getDateOfBirth(),
+                member.getGender(),
+                member.getMaritalStatus(),
+                member.getBloodGroup(),
+                member.getMobileNumber(),
+                member.getEmail(),
+                member.getOccupation(),
+                member.getEmployment(),
+                member.getStatus()
+        )).toList());
         return viewFamily;
     }
 
@@ -182,8 +227,18 @@ public class FamilyServiceImpl implements FamilyService {
         updateFamilyHead(familyHead, updateFamilyRequest.getUpdateFamilyHeadRequest());
         familyHeadRepository.save(familyHead);
 
-        UpdateFamilyMemberRequest memberRequest = updateFamilyRequest.getUpdateFamilyMemberRequest();
-        if (memberRequest != null && memberRequest.getFamilyMemberId() != null) {
+        List<UpdateFamilyMemberRequest> memberRequests = new ArrayList<>();
+        if (updateFamilyRequest.getUpdateFamilyMemberRequests() != null) {
+            memberRequests.addAll(updateFamilyRequest.getUpdateFamilyMemberRequests());
+        }
+        if (updateFamilyRequest.getUpdateFamilyMemberRequest() != null) {
+            memberRequests.add(updateFamilyRequest.getUpdateFamilyMemberRequest());
+        }
+
+        for (UpdateFamilyMemberRequest memberRequest : memberRequests) {
+            if (memberRequest == null || memberRequest.getFamilyMemberId() == null) {
+                continue;
+            }
             FamilyMember familyMember = familyMemberRepository
                     .findByIdAndFamilyHeadUserIdAndFamilyHeadMemberShipId(
                             memberRequest.getFamilyMemberId(),
@@ -202,6 +257,38 @@ public class FamilyServiceImpl implements FamilyService {
         return "Family updated";
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(value = {
+            "view-families",
+            "view-members",
+            "view-family",
+            "recent-families",
+            "families-with-status"
+    }, allEntries = true)
+    public String changeStatus(Long userId, String memberShipId, String status) {
+        FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(userId, memberShipId);
+        if (familyHead == null) {
+            throw new RuntimeException("Family not found");
+        }
+        Status nextStatus = Status.valueOf(status.trim().toUpperCase());
+        familyHead.setStatus(nextStatus);
+        familyHeadRepository.save(familyHead);
+
+        List<FamilyMember> familyMembers = familyMemberRepository.findByFamilyHeadMemberShipId(memberShipId);
+        for (FamilyMember familyMember : familyMembers) {
+            familyMember.setStatus(nextStatus);
+        }
+        if (!familyMembers.isEmpty()) {
+            familyMemberRepository.saveAll(familyMembers);
+        }
+
+        kafkaTemplate.send("status-changed",
+                userId.toString(),
+                familyHead.getFamilyName()+" status changed to "+nextStatus.name());
+        return "Status changed";
+    }
+
     private void updateFamilyHead(FamilyHead familyHead, UpdateFamilyHeadRequest request) {
         if (request == null) {
             return;
@@ -211,15 +298,21 @@ public class FamilyServiceImpl implements FamilyService {
         if (request.getMemberShipType() != null) familyHead.setMemberShipType(request.getMemberShipType());
         if (request.getRegistrationCategory() != null) familyHead.setRegistrationCategory(request.getRegistrationCategory());
         if (request.getFirstName() != null) familyHead.setFirstName(request.getFirstName());
+        if (request.getMiddleName() != null) familyHead.setMiddleName(request.getMiddleName());
         if (request.getLastName() != null) familyHead.setLastName(request.getLastName());
+        if (request.getDateOfBirth() != null) familyHead.setDateOfBirth(request.getDateOfBirth());
         if (request.getGender() != null) familyHead.setGender(request.getGender());
         if (request.getMaritalStatus() != null) familyHead.setMaritalStatus(request.getMaritalStatus());
         if (request.getBloodGroup() != null) familyHead.setBloodGroup(request.getBloodGroup());
         if (request.getMobileNumber() != null) familyHead.setMobileNumber(request.getMobileNumber());
+        if (request.getAlternateMobile() != null) familyHead.setAlternateMobile(request.getAlternateMobile());
+        if (request.getEmail() != null) familyHead.setEmail(request.getEmail());
         if (request.getOccupation() != null) familyHead.setOccupation(request.getOccupation());
+        if (request.getEmployment() != null) familyHead.setEmployment(request.getEmployment());
         if (request.getProfession() != null) familyHead.setProfession(request.getProfession());
         if (request.getQualification() != null) familyHead.setQualification(request.getQualification());
         if (request.getDesignation() != null) familyHead.setDesignation(request.getDesignation());
+        if (request.getOrganization() != null) familyHead.setOrganization(request.getOrganization());
         if (request.getAnnualIncome() != null) familyHead.setAnnualIncome(request.getAnnualIncome());
         if (request.getAddressLine1() != null) familyHead.setAddressLine1(request.getAddressLine1());
         if (request.getAddressLine2() != null) familyHead.setAddressLine2(request.getAddressLine2());
@@ -262,5 +355,15 @@ public class FamilyServiceImpl implements FamilyService {
     private String nextMembershipNumber() {
         long next = familyHeadRepository.count() + 1;
         return String.format("FM-%d-%06d", Year.now().getValue(), next);
+    }
+
+    private String joinAddress(String line1, String line2) {
+        if (line1 == null) {
+            return line2;
+        }
+        if (line2 == null || line2.isBlank()) {
+            return line1;
+        }
+        return line1 + " " + line2;
     }
 }

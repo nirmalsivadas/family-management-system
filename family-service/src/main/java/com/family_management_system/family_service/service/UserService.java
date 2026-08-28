@@ -13,7 +13,7 @@ public interface UserService {
     Long totalMembers(Long userId);
     String updateProfile(UpdateProfileRequest updateProfileRequest);
     String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest);
-    String changeStatus(Long userId, String status);
+    String resetPassword(String email);
 
     UserResponse createUser(SignupRequest signupRequest);
 

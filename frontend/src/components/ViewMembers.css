@@ -28,3 +28,15 @@
   color: #3827ff;
   text-decoration: none;
 }
+
+.members-search {
+  margin: 0 0 16px;
+}
+
+.view-members-container .pager {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
