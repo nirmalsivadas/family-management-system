@@ -1,6 +1,5 @@
 spring:
   application:
     name: family-service
-
   config:
     import: "optional:configserver:http://localhost:8888"
