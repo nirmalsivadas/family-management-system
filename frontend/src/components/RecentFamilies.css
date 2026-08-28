@@ -1,15 +1,86 @@
 .recent-families {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  background-color: #f9f9f9;
+  overflow: hidden;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
 }
 
-.family-card {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.section-heading {
+  min-height: 76px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section-heading a {
+  color: #4f46e5;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.families-table {
+  width: 100%;
+}
+
+.families-row {
+  min-height: 76px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1.4fr 1.5fr 0.7fr 1fr 0.5fr;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid #f1f2f4;
+}
+
+.families-row:last-child {
+  border-bottom: 0;
+}
+
+.families-header {
+  min-height: 48px;
+  color: #9ca3af;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.families-row strong,
+.families-row a {
+  color: #3827ff;
+  text-decoration: none;
+}
+
+.status-pill {
+  width: fit-content;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-weight: 700;
+}
+
+.status-pill.confirmed {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #059669;
+}
+
+.status-pill.pending {
+  border-color: #fcd34d;
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 24px;
+  color: #6b7280;
 }

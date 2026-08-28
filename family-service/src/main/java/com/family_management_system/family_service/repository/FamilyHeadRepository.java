@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
     Long countByUserId(Long userId);
+    Long countByUserIdAndStatus(Long userId, Status status);
     Page<FamilyHead> findByUserId(Long userId, Pageable pageable);
     Page<FamilyHead> findByUserIdAndStatus
             (Long userId, Status status, Pageable pageable);

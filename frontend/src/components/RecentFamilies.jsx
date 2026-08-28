@@ -31,14 +31,29 @@ function RecentFamilies(){
 
   return (
     <div className='recent-families'>
-      {families.map((family)=>(
-        <div key={family.membershipId} className='family-card'>
-          <h4>{family.familyHead}</h4>
-          <p>Members: {family.numberOfFamilyMembers}</p>
-          <span>Status: {family.status}</span>
-          <span>Action: <Link to='/view-families'>View</Link></span>
+      <div className="section-heading">
+        <h2>Recent Families</h2>
+        <Link to="/view-families">View all →</Link>
+      </div>
+      <div className="families-table">
+        <div className="families-row families-header">
+          <span>Membership #</span>
+          <span>Family Head</span>
+          <span>Members</span>
+          <span>Status</span>
+          <span>Action</span>
         </div>
-      ))}
+        {families.map((family)=>(
+          <div key={family.membershipId} className='families-row'>
+            <strong>{family.membershipId}</strong>
+            <span>{family.familyHead}</span>
+            <span>{family.numberOfFamilyMembers}</span>
+            <span className={`status-pill ${family.status?.toLowerCase()}`}>{family.status}</span>
+            <Link to='/view-families'>View</Link>
+          </div>
+        ))}
+        {families.length === 0 && <p className="empty-state">No recent families found.</p>}
+      </div>
     </div>
   );
 }

@@ -53,43 +53,47 @@ function Signup(){
 
   return(
     <div className="signup-container">
-      <h1>Family Management System</h1>
+      <div className="auth-brand">
+        <div className="auth-logo">FM</div>
+        <h1>FamilyMgmt Portal</h1>
+        <p>Family Membership Management System</p>
+      </div>
       <form className="signup-form" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
+        <h2>Create your account</h2>
         {error && <div className="error">{error}</div>}
         <div className='form-group'>
-          <label htmlFor="firstName">First Name</label>
-          <input type="text" id='firstName' name='firstName' value={form.firstName} onChange={handleChange}/>
+          <label htmlFor="firstName">First name<span>*</span></label>
+          <input type="text" id='firstName' name='firstName' value={form.firstName} onChange={handleChange} placeholder="Ravi"/>
         </div>
         <div className='form-group'>
-          <label htmlFor="lastName">Last Name</label>
-          <input type="text" id='lastName' name='lastName' value={form.lastName} onChange={handleChange}/>
+          <label htmlFor="lastName">Last name<span>*</span></label>
+          <input type="text" id='lastName' name='lastName' value={form.lastName} onChange={handleChange} placeholder="Verma"/>
         </div>
         <div className='form-group'>
-          <label htmlFor="email">Email</label>
-          <input type="email" id='email' name='email' value={form.email} onChange={handleChange}/>
+          <label htmlFor="email">Email address<span>*</span></label>
+          <input type="email" id='email' name='email' value={form.email} onChange={handleChange} placeholder="you@example.com"/>
         </div>
         <div className='form-group'>
-          <label htmlFor="mobileNumber">Mobile Number</label>
-          <input type="text" id='mobileNumber' name='mobileNumber' value={form.mobileNumber} onChange={handleChange}/>
+          <label htmlFor="mobileNumber">Mobile number<span>*</span></label>
+          <input type="text" id='mobileNumber' name='mobileNumber' value={form.mobileNumber} onChange={handleChange} placeholder="9876543210"/>
         </div>
         <div className='form-group'>
-          <label htmlFor="password">Password</label>
-          <input type="password" id='password' name='password' value={form.password} onChange={handleChange}/>
+          <label htmlFor="password">Password<span>*</span></label>
+          <input type="password" id='password' name='password' value={form.password} onChange={handleChange} placeholder="Create a password"/>
         </div>
         <div className='form-group'>
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input type="password" id='changePassword' name='confirmPassword' value={form.confirmPassword} onChange={handleChange}/>
+          <label htmlFor="confirmPassword">Confirm password<span>*</span></label>
+          <input type="password" id='confirmPassword' name='confirmPassword' value={form.confirmPassword} onChange={handleChange} placeholder="Confirm password"/>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit'}
-        </button>
         <div className="terms-and-conditions">
-          <input type="checkbox" />
+          <input id="termsAndConditions" type="checkbox" />
           <label htmlFor="termsAndConditions">I agree to the <Link to="/terms-and-conditions">terms and conditions</Link></label>
         </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating account...' : 'Create account'}
+        </button>
+        <p className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></p>
       </form>
-      <div>Already have an account? <Link to="/login">Login</Link></div>
     </div>
   )
 }

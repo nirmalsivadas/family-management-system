@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ViewFamily {
+    private String membershipId;
     private String familyName;
     private Date registrationDate;
     private Long numberOfFamilyMembers;
@@ -27,6 +28,7 @@ public class ViewFamily {
     private Long mobileNumber;
     private String email;
     private String bloodGroup;
+    private String occupation;
     private String organization;
     private Long annualIncome;
     private String designation;

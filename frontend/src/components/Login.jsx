@@ -26,7 +26,8 @@ function Login(){
     setLoading(true);
     try{
       const response = await api.post('/auth/login',form);
-      localStorage.setItem('user',JSON.stringify(response.data.data));
+      const loggedInUser = response.data?.data ?? response.data;
+      localStorage.setItem('user',JSON.stringify(loggedInUser));
       navigate('/dashboard');
     }catch(err){
       const message = err.response?.data?.message || "Login failed";
@@ -40,26 +41,36 @@ function Login(){
 
   return(
     <div className="login-container">
-      <h1>Family Management System</h1>
+      <div className="auth-brand">
+        <div className="auth-logo">FM</div>
+        <h1>FamilyMgmt Portal</h1>
+        <p>Family Membership Management System</p>
+      </div>
       <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login</h2>
+        <h2>Sign in to your account</h2>
         {error && <div className="error">{error}</div>}
         <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input type="email" name='email' value={form.email} onChange={handleChange}/>
+          <label htmlFor="email">Email address<span>*</span></label>
+          <input id="email" type="email" name='email' value={form.email} onChange={handleChange} placeholder="you@example.com"/>
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input type="password" name='password' value={form.password} onChange={handleChange}/>
+          <label htmlFor="password">Password<span>*</span></label>
+          <input id="password" type="password" name='password' value={form.password} onChange={handleChange} placeholder="Enter your password"/>
+        </div>
+        <div className="login-options">
+          <label>
+            <input type="checkbox" />
+            Remember me
+          </label>
+          <Link to="/forgot-password" className="forgot-password">
+            Forgot password?
+          </Link>
         </div>
         <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Signing in...' : 'Sign in'}
         </button>
-        <Link to="/forgot-password" className="forgot-password">
-          Forgot Password?
-        </Link>
+        <p className="auth-switch">Don't have an account? <Link to="/signup">Create account</Link></p>
       </form>
-      <div>Don't have an account? <Link to="/signup">Sign Up</Link></div>
     </div>
   )
 }

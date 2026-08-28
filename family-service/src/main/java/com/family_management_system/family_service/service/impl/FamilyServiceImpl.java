@@ -129,6 +129,7 @@ public class FamilyServiceImpl implements FamilyService {
         FamilyHead familyHead = familyHeadRepository.findByUserIdAndMemberShipId(userId,memberShipId);
 
         ViewFamily viewFamily = new ViewFamily();
+        viewFamily.setMembershipId(familyHead.getMemberShipId());
         viewFamily.setFamilyName(familyHead.getFamilyName());
         viewFamily.setRegistrationDate(familyHead.getJoinDate());
         viewFamily.setNumberOfFamilyMembers(familyHead.getNumberOfFamilyMembers());
@@ -140,6 +141,7 @@ public class FamilyServiceImpl implements FamilyService {
         viewFamily.setFamilHeadName(familyHead.getFirstName()+" "+familyHead.getLastName());
         viewFamily.setBloodGroup(familyHead.getBloodGroup());
         viewFamily.setEmail(familyHead.getEmail());
+        viewFamily.setOccupation(familyHead.getOccupation());
         viewFamily.setDesignation(familyHead.getDesignation());
         viewFamily.setAnnualIncome(familyHead.getAnnualIncome());
         viewFamily.setOrganization(familyHead.getOrganization());

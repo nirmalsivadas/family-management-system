@@ -18,5 +18,5 @@ public interface UserService {
     UserResponse createUser(SignupRequest signupRequest);
 
     UserResponse findByUserId(Long userId);
-    String familiesWithStatus(Long userId, String status);
+    Long familiesWithStatus(Long userId, String status);
 }

@@ -52,10 +52,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateProfile(UpdateProfileRequest updateProfileRequest) {
-        User user1 = userRepository.findById(updateProfileRequest.getUserId())
+        User user = userRepository.findById(updateProfileRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("User not found"));
 
-        User user =  UserMapper.toUpdateEntity(updateProfileRequest);
+        user.setFirstName(updateProfileRequest.getFirstName());
+        user.setLastName(updateProfileRequest.getLastName());
+        user.setMobileNumber(updateProfileRequest.getMobileNumber());
         userRepository.save(user);
         kafkaTemplate.send("profile-updated",
                 updateProfileRequest.getUserId().toString(),
@@ -109,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "families-with-status",key = "#userId + ':' + #status")
-    public String familiesWithStatus(Long userId, String status) {
-        return String.valueOf(familyMemberRepository.countByStatus(Status.valueOf(status)));
+    public Long familiesWithStatus(Long userId, String status) {
+        return familyHeadRepository.countByUserIdAndStatus(userId, Status.valueOf(status));
     }
 }

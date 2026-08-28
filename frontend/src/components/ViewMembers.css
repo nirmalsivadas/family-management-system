@@ -1,0 +1,30 @@
+.view-members-container {
+  padding-top: 20px;
+}
+
+.members-row {
+  min-height: 72px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1.4fr 1.1fr 1.2fr 1.2fr 1.3fr 1fr 1fr 0.6fr;
+  gap: 14px;
+  align-items: center;
+  border-bottom: 1px solid #f1f2f4;
+}
+
+.members-row:last-child {
+  border-bottom: 0;
+}
+
+.members-header {
+  min-height: 48px;
+  color: #9ca3af;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.members-row strong,
+.members-row a {
+  color: #3827ff;
+  text-decoration: none;
+}

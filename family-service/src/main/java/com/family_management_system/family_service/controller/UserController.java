@@ -92,10 +92,10 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{userId}/{status}")
-    public ResponseEntity<ApiResponse<String>> familiesWithStatus(@PathVariable Long userId,
+    @GetMapping("/{userId}/{status}")
+    public ResponseEntity<ApiResponse<Long>> familiesWithStatus(@PathVariable Long userId,
                                                             @PathVariable String status){
-        ApiResponse<String> response = new ApiResponse<>(
+        ApiResponse<Long> response = new ApiResponse<>(
                 "Number of families with" + status +" status fetched",
                 HttpStatus.OK,
                 LocalDateTime.now(),

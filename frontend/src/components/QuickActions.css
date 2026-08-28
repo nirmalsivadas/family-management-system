@@ -1,21 +1,103 @@
 .quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  background-color: #f9f9f9;
+  padding: 26px;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  width: 30%;
-  margin-left: 70%
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 5px
+.quick-actions h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.quick-actions-grid a {
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.quick-actions-grid a:first-child {
+  background: #eef2ff;
+  color: #3827ff;
+}
+
+.quick-actions-grid span {
+  font-size: 22px;
+}
+
+.recent-notifications-container {
+  padding: 26px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
+}
+
+.recent-notifications-container .section-heading {
+  min-height: auto;
+  padding: 0;
+  margin-bottom: 16px;
+  border: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  color: #475569;
+}
+
+.activity-item p {
+  margin: 0;
+}
+
+.activity-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 900;
+  background: #dcfce7;
+  color: #059669;
+  text-transform: uppercase;
+}
+
+.activity-dot.confirmed {
+  background: #dcfce7;
+  color: #059669;
+}
+
+.activity-dot.info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.activity-dot.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.activity-dot.rejected {
+  background: #fee2e2;
+  color: #dc2626;
 }
