@@ -37,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         LoginResult loginResult = authService.login(loginRequest);
         ResponseCookie cookie = ResponseCookie.from("jwt",loginResult.getToken())
                 .httpOnly(true)

@@ -30,7 +30,6 @@ public class UserServiceImpl implements UserService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
-    @Cacheable(value = "email",key = "#email")
     public UserResponse findByEmail(String email) {
         User user =  userRepository.findByEmail(email);
         if (user == null) {

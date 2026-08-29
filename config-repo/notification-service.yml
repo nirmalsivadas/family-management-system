@@ -21,11 +21,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   cache:
-    type: redis
-  data:
-    redis:
-      host: localhost
-      port: 6379
+    type: simple
 
 
 eureka:
