@@ -20,4 +20,8 @@ public class State {
 
     @Column(length = 100,nullable = false)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
 }

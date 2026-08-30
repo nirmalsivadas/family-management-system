@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table
+@Table(name = "city")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,4 +20,8 @@ public class City {
 
     @Column(length = 100,nullable = false)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "state_id")
+    private State state;
 }

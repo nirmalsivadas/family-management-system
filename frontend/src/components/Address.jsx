@@ -1,7 +1,6 @@
 import React from 'react';
-import { COUNTRIES, INDIAN_STATES } from '../utils/registerFamily';
 
-function Address({ form, error, onChange, onBack, onSaveDraft, onContinue }) {
+function Address({ form, error, cities, countries, states, onChange, onBack, onSaveDraft, onContinue }) {
   return (
     <section className="reg-card">
       <h2>Permanent Address</h2>
@@ -20,36 +19,28 @@ function Address({ form, error, onChange, onBack, onSaveDraft, onContinue }) {
           <label htmlFor="country">Country <span>*</span></label>
           <select id="country" name="country" value={form.country} onChange={onChange}>
             <option value="">Select country</option>
-            {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+            {countries.map((country) => <option key={country} value={country}>{country}</option>)}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="state">State <span>*</span></label>
           <select id="state" name="state" value={form.state} onChange={onChange}>
             <option value="">Select state</option>
-            {INDIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+            {states.map((state) => <option key={state} value={state}>{state}</option>)}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="city">City <span>*</span></label>
-          <input id="city" name="city" value={form.city} onChange={onChange} placeholder="City name" />
+          <select id="city" name="city" value={form.city} onChange={onChange}>
+            <option value="">Select city</option>
+            {cities.map((city) => <option key={city} value={city}>{city}</option>)}
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="pinCode">Postal Code <span>*</span></label>
           <input id="pinCode" name="pinCode" value={form.pinCode} onChange={onChange} placeholder="110001" />
         </div>
       </div>
-
-      <h3 className="reg-section-title">Current Address</h3>
-      <label className="reg-check">
-        <input
-          type="checkbox"
-          name="currentSameAsPermanent"
-          checked={form.currentSameAsPermanent}
-          onChange={onChange}
-        />
-        Same as permanent address
-      </label>
 
       <div className="reg-actions">
         <button type="button" className="btn btn-ghost" onClick={onBack}>← Back</button>

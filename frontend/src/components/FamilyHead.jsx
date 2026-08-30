@@ -1,18 +1,15 @@
 import React from 'react';
-import {
-  BLOOD_GROUPS,
-  EMPLOYMENT_TYPES,
-  GENDERS,
-  MARITAL_STATUSES,
-  OCCUPATIONS,
-} from '../utils/registerFamily';
 
 function FamilyHead({
   form,
   error,
-  occupations,
-  designations,
   bloodGroups,
+  designations,
+  genders,
+  maritalStatuses,
+  occupations,
+  professions,
+  qualifications,
   onChange,
   onPhotoChange,
   photoName,
@@ -20,9 +17,6 @@ function FamilyHead({
   onSaveDraft,
   onContinue,
 }) {
-  const occupationOptions = occupations.length ? occupations : OCCUPATIONS;
-  const bloodGroupOptions = bloodGroups.length ? bloodGroups : BLOOD_GROUPS;
-
   return (
     <section className="reg-card">
       <h2>Family Head Information</h2>
@@ -53,21 +47,21 @@ function FamilyHead({
           <label htmlFor="gender">Gender <span>*</span></label>
           <select id="gender" name="gender" value={form.gender} onChange={onChange}>
             <option value="">Select gender</option>
-            {GENDERS.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
+            {genders.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="maritalStatus">Marital Status <span>*</span></label>
           <select id="maritalStatus" name="maritalStatus" value={form.maritalStatus} onChange={onChange}>
             <option value="">Select status</option>
-            {MARITAL_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+            {maritalStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="bloodGroup">Blood Group</label>
           <select id="bloodGroup" name="bloodGroup" value={form.bloodGroup} onChange={onChange}>
             <option value="">Select blood group</option>
-            {bloodGroupOptions.map((group) => <option key={group} value={group}>{group}</option>)}
+            {bloodGroups.map((group) => <option key={group} value={group}>{group}</option>)}
           </select>
         </div>
       </div>
@@ -94,14 +88,23 @@ function FamilyHead({
           <label htmlFor="occupation">Occupation <span>*</span></label>
           <select id="occupation" name="occupation" value={form.occupation} onChange={onChange}>
             <option value="">Select occupation</option>
-            {occupationOptions.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
+            {occupations.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="employment">Employment Type <span>*</span></label>
           <select id="employment" name="employment" value={form.employment} onChange={onChange}>
             <option value="">Select type</option>
-            {EMPLOYMENT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+            {professions.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="qualification">Qualification</label>
+          <select id="qualification" name="qualification" value={form.qualification} onChange={onChange}>
+            <option value="">Select qualification</option>
+            {qualifications.map((qualification) => (
+              <option key={qualification} value={qualification}>{qualification}</option>
+            ))}
           </select>
         </div>
         <div className="form-group">
@@ -112,7 +115,7 @@ function FamilyHead({
           <label htmlFor="designation">Designation</label>
           <select id="designation" name="designation" value={form.designation} onChange={onChange}>
             <option value="">Select designation</option>
-            {(designations.length ? designations : ['Senior Manager', 'Manager', 'Executive', 'Other']).map((item) => (
+            {designations.map((item) => (
               <option key={item} value={item}>{item}</option>
             ))}
           </select>

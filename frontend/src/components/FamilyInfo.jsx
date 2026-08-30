@@ -1,7 +1,15 @@
 import React from 'react';
-import { MEMBERSHIP_TYPES, REGISTRATION_CATEGORIES } from '../utils/registerFamily';
 
-function FamilyInfo({ form, error, onChange, onCancel, onSaveDraft, onContinue }) {
+function FamilyInfo({
+  form,
+  error,
+  membershipTypes,
+  registrationCategories,
+  onChange,
+  onCancel,
+  onSaveDraft,
+  onContinue,
+}) {
   return (
     <section className="reg-card">
       <h2>Family Information</h2>
@@ -34,7 +42,8 @@ function FamilyInfo({ form, error, onChange, onCancel, onSaveDraft, onContinue }
         <div className="form-group">
           <label htmlFor="memberShipType">Membership Type <span>*</span></label>
           <select id="memberShipType" name="memberShipType" value={form.memberShipType} onChange={onChange}>
-            {MEMBERSHIP_TYPES.map((type) => (
+            <option value="">Select type</option>
+            {membershipTypes.map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
@@ -42,7 +51,8 @@ function FamilyInfo({ form, error, onChange, onCancel, onSaveDraft, onContinue }
         <div className="form-group">
           <label htmlFor="registrationCategory">Registration Category <span>*</span></label>
           <select id="registrationCategory" name="registrationCategory" value={form.registrationCategory} onChange={onChange}>
-            {REGISTRATION_CATEGORIES.map((category) => (
+            <option value="">Select category</option>
+            {registrationCategories.map((category) => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>

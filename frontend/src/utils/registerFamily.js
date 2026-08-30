@@ -7,31 +7,6 @@ export const STEPS = [
   'Confirmation',
 ];
 
-export const MEMBERSHIP_TYPES = ['Standard', 'Premium', 'Senior Citizen'];
-export const REGISTRATION_CATEGORIES = ['General', 'OBC', 'SC/ST', 'EWS'];
-export const GENDERS = ['Male', 'Female', 'Other'];
-export const MARITAL_STATUSES = ['Single', 'Married', 'Widowed', 'Divorced'];
-export const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-export const EMPLOYMENT_TYPES = [
-  'Salaried',
-  'Self-Employed',
-  'Business',
-  'Government',
-  'Student',
-  'Homemaker',
-  'Unemployed',
-  'Retired',
-];
-export const OCCUPATIONS = [
-  'Software Engineer',
-  'Teacher',
-  'Doctor',
-  'Business Owner',
-  'Government Employee',
-  'Homemaker',
-  'Student',
-  'Other',
-];
 export const RELATIONS = [
   { value: 'FATHER', label: 'Father' },
   { value: 'MOTHER', label: 'Mother' },
@@ -42,14 +17,6 @@ export const RELATIONS = [
   { value: 'BROTHER', label: 'Brother' },
   { value: 'SISTER', label: 'Sister' },
   { value: 'OTHER', label: 'Other' },
-];
-export const COUNTRIES = ['India', 'United States', 'United Kingdom', 'Canada', 'Australia'];
-export const INDIAN_STATES = [
-  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi',
-  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala',
-  'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland',
-  'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
 ];
 
 export function emptyMember() {
@@ -66,6 +33,9 @@ export function emptyMember() {
     email: '',
     occupation: '',
     employment: '',
+    qualification: '',
+    profession: '',
+    organization: '',
   };
 }
 
@@ -87,6 +57,8 @@ export function createInitialForm() {
     email: '',
     occupation: '',
     employment: '',
+    qualification: '',
+    profession: '',
     organization: '',
     designation: '',
     annualIncome: '',
@@ -96,7 +68,6 @@ export function createInitialForm() {
     state: '',
     city: '',
     pinCode: '',
-    currentSameAsPermanent: true,
     members: [emptyMember(), emptyMember(), emptyMember()],
   };
 }

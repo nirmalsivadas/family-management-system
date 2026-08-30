@@ -1,6 +1,5 @@
 package com.family_management_system.master_service.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,12 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "country")
+@Table(name = "marital_status")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Country {
+public class MaritalStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(length = 11)

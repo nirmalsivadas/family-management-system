@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
 import {
-  BLOOD_GROUPS,
-  EMPLOYMENT_TYPES,
-  GENDERS,
   isMemberComplete,
-  MARITAL_STATUSES,
-  OCCUPATIONS,
   RELATIONS,
 } from '../utils/registerFamily';
 
 function FamilyMembers({
   form,
   error,
-  occupations,
   bloodGroups,
+  genders,
+  maritalStatuses,
+  occupations,
+  professions,
   onMemberChange,
   onBack,
   onSaveDraft,
   onContinue,
 }) {
   const [openIndex, setOpenIndex] = useState(0);
-  const occupationOptions = occupations.length ? occupations : OCCUPATIONS;
-  const bloodGroupOptions = bloodGroups.length ? bloodGroups : BLOOD_GROUPS;
 
   return (
     <section className="reg-card">
@@ -87,21 +83,21 @@ function FamilyMembers({
                     <label htmlFor={`gender-${index}`}>Gender <span>*</span></label>
                     <select id={`gender-${index}`} name="gender" value={member.gender} onChange={(event) => onMemberChange(index, event)}>
                       <option value="">Select gender</option>
-                      {GENDERS.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
+                      {genders.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label htmlFor={`marital-${index}`}>Marital Status</label>
                     <select id={`marital-${index}`} name="maritalStatus" value={member.maritalStatus} onChange={(event) => onMemberChange(index, event)}>
                       <option value="">Select status</option>
-                      {MARITAL_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+                      {maritalStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label htmlFor={`blood-${index}`}>Blood Group</label>
                     <select id={`blood-${index}`} name="bloodGroup" value={member.bloodGroup} onChange={(event) => onMemberChange(index, event)}>
                       <option value="">Select blood group</option>
-                      {bloodGroupOptions.map((group) => <option key={group} value={group}>{group}</option>)}
+                      {bloodGroups.map((group) => <option key={group} value={group}>{group}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
@@ -116,14 +112,14 @@ function FamilyMembers({
                     <label htmlFor={`occupation-${index}`}>Occupation</label>
                     <select id={`occupation-${index}`} name="occupation" value={member.occupation} onChange={(event) => onMemberChange(index, event)}>
                       <option value="">Select occupation</option>
-                      {occupationOptions.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
+                      {occupations.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label htmlFor={`employment-${index}`}>Employment Type</label>
                     <select id={`employment-${index}`} name="employment" value={member.employment} onChange={(event) => onMemberChange(index, event)}>
                       <option value="">Select type</option>
-                      {EMPLOYMENT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+                      {professions.map((type) => <option key={type} value={type}>{type}</option>)}
                     </select>
                   </div>
                 </div>

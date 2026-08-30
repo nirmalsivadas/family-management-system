@@ -3,15 +3,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import './RegisterFamily.css';
 import {
-  BLOOD_GROUPS,
-  COUNTRIES,
-  EMPLOYMENT_TYPES,
-  GENDERS,
-  INDIAN_STATES,
-  MARITAL_STATUSES,
-  MEMBERSHIP_TYPES,
-  OCCUPATIONS,
-  REGISTRATION_CATEGORIES,
   RELATIONS,
   namesFromMaster,
   toIsoDate,
@@ -27,20 +18,49 @@ function UpdateFamily() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [occupations, setOccupations] = useState([]);
-  const [designations, setDesignations] = useState([]);
-  const [bloodGroups, setBloodGroups] = useState([]);
+  const [masterOptions, setMasterOptions] = useState({
+    bloodGroups: [],
+    cities: [],
+    countries: [],
+    designations: [],
+    genders: [],
+    maritalStatuses: [],
+    membershipTypes: [],
+    occupations: [],
+    professions: [],
+    registrationCategories: [],
+    states: [],
+  });
   const [form, setForm] = useState(null);
 
   useEffect(() => {
-    Promise.allSettled([
-      api.get('/master/professions'),
-      api.get('/master/designations'),
-      api.get('/master/blood-groups'),
-    ]).then(([professionRes, designationRes, bloodRes]) => {
-      if (professionRes.status === 'fulfilled') setOccupations(namesFromMaster(professionRes.value.data));
-      if (designationRes.status === 'fulfilled') setDesignations(namesFromMaster(designationRes.value.data));
-      if (bloodRes.status === 'fulfilled') setBloodGroups(namesFromMaster(bloodRes.value.data));
+    const endpoints = {
+      bloodGroups: '/master/blood-groups',
+      cities: '/master/cities',
+      countries: '/master/countries',
+      designations: '/master/designations',
+      genders: '/master/genders',
+      maritalStatuses: '/master/marital-status',
+      membershipTypes: '/master/membership-types',
+      occupations: '/master/occupations',
+      professions: '/master/professions',
+      registrationCategories: '/master/registration-categories',
+      states: '/master/states',
+    };
+
+    Promise.allSettled(
+      Object.entries(endpoints).map(([key, url]) => (
+        api.get(url).then((response) => [key, namesFromMaster(response.data)])
+      ))
+    ).then((results) => {
+      const nextOptions = {};
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const [key, values] = result.value;
+          nextOptions[key] = values;
+        }
+      });
+      setMasterOptions((current) => ({ ...current, ...nextOptions }));
     });
   }, []);
 
@@ -194,9 +214,6 @@ function UpdateFamily() {
     );
   }
 
-  const occupationOptions = occupations.length ? occupations : OCCUPATIONS;
-  const bloodGroupOptions = bloodGroups.length ? bloodGroups : BLOOD_GROUPS;
-
   return (
     <form className="register-family" onSubmit={handleSubmit}>
       <div className="register-family-header">
@@ -216,13 +233,15 @@ function UpdateFamily() {
           <div className="form-group">
             <label htmlFor="memberShipType">Membership Type</label>
             <select id="memberShipType" name="memberShipType" value={form.memberShipType} onChange={handleChange}>
-              {MEMBERSHIP_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+              <option value="">Select type</option>
+              {masterOptions.membershipTypes.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="registrationCategory">Registration Category</label>
             <select id="registrationCategory" name="registrationCategory" value={form.registrationCategory} onChange={handleChange}>
-              {REGISTRATION_CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
+              <option value="">Select category</option>
+              {masterOptions.registrationCategories.map((category) => <option key={category} value={category}>{category}</option>)}
             </select>
           </div>
         </div>
@@ -253,21 +272,21 @@ function UpdateFamily() {
             <label>Gender</label>
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select gender</option>
-              {GENDERS.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
+              {masterOptions.genders.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Marital Status</label>
             <select name="maritalStatus" value={form.maritalStatus} onChange={handleChange}>
               <option value="">Select status</option>
-              {MARITAL_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+              {masterOptions.maritalStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Blood Group</label>
             <select name="bloodGroup" value={form.bloodGroup} onChange={handleChange}>
               <option value="">Select blood group</option>
-              {bloodGroupOptions.map((group) => <option key={group} value={group}>{group}</option>)}
+              {masterOptions.bloodGroups.map((group) => <option key={group} value={group}>{group}</option>)}
             </select>
           </div>
           <div className="form-group">
@@ -282,21 +301,21 @@ function UpdateFamily() {
             <label>Occupation</label>
             <select name="occupation" value={form.occupation} onChange={handleChange}>
               <option value="">Select occupation</option>
-              {occupationOptions.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
+              {masterOptions.occupations.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Employment</label>
             <select name="employment" value={form.employment} onChange={handleChange}>
               <option value="">Select type</option>
-              {EMPLOYMENT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+              {masterOptions.professions.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>Designation</label>
             <select name="designation" value={form.designation} onChange={handleChange}>
               <option value="">Select designation</option>
-              {(designations.length ? designations : ['Senior Manager', 'Manager', 'Executive', 'Other']).map((item) => (
+              {masterOptions.designations.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
@@ -326,19 +345,23 @@ function UpdateFamily() {
           <div className="form-group">
             <label>Country</label>
             <select name="country" value={form.country} onChange={handleChange}>
-              {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+              <option value="">Select country</option>
+              {masterOptions.countries.map((country) => <option key={country} value={country}>{country}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>State</label>
             <select name="state" value={form.state} onChange={handleChange}>
               <option value="">Select state</option>
-              {INDIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+              {masterOptions.states.map((state) => <option key={state} value={state}>{state}</option>)}
             </select>
           </div>
           <div className="form-group">
             <label>City</label>
-            <input name="city" value={form.city} onChange={handleChange} />
+            <select name="city" value={form.city} onChange={handleChange}>
+              <option value="">Select city</option>
+              {masterOptions.cities.map((city) => <option key={city} value={city}>{city}</option>)}
+            </select>
           </div>
           <div className="form-group">
             <label>Postal Code</label>
@@ -370,14 +393,14 @@ function UpdateFamily() {
               <label>Gender</label>
               <select name="gender" value={member.gender} onChange={(event) => handleMemberChange(index, event)}>
                 <option value="">Select gender</option>
-                {GENDERS.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
+                {masterOptions.genders.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
               </select>
             </div>
             <div className="form-group">
               <label>Occupation</label>
               <select name="occupation" value={member.occupation} onChange={(event) => handleMemberChange(index, event)}>
                 <option value="">Select occupation</option>
-                {occupationOptions.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
+                {masterOptions.occupations.map((occupation) => <option key={occupation} value={occupation}>{occupation}</option>)}
               </select>
             </div>
             <div className="form-group">

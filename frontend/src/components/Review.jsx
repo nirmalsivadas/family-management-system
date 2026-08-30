@@ -72,9 +72,6 @@ function Review({
           <strong>{form.addressLine1}</strong>
           <strong>{[form.addressLine2, form.city, form.state].filter(Boolean).join(', ')}{form.pinCode ? ` — ${form.pinCode}` : ''}{form.country ? `, ${form.country}` : ''}</strong>
         </div>
-        {form.currentSameAsPermanent && (
-          <p className="helper-text">Current address same as permanent</p>
-        )}
       </section>
 
       <section className="review-card">

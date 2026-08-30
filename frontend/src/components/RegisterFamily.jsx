@@ -40,9 +40,20 @@ function RegisterFamily() {
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
-  const [occupations, setOccupations] = useState([]);
-  const [designations, setDesignations] = useState([]);
-  const [bloodGroups, setBloodGroups] = useState([]);
+  const [masterOptions, setMasterOptions] = useState({
+    bloodGroups: [],
+    cities: [],
+    countries: [],
+    designations: [],
+    genders: [],
+    maritalStatuses: [],
+    membershipTypes: [],
+    occupations: [],
+    professions: [],
+    qualifications: [],
+    registrationCategories: [],
+    states: [],
+  });
 
   useEffect(() => {
     const saved = localStorage.getItem(draftKey(userId));
@@ -58,20 +69,34 @@ function RegisterFamily() {
   }, [userId]);
 
   useEffect(() => {
-    Promise.allSettled([
-      api.get('/master/professions'),
-      api.get('/master/designations'),
-      api.get('/master/blood-groups'),
-    ]).then(([professionRes, designationRes, bloodRes]) => {
-      if (professionRes.status === 'fulfilled') {
-        setOccupations(namesFromMaster(professionRes.value.data));
-      }
-      if (designationRes.status === 'fulfilled') {
-        setDesignations(namesFromMaster(designationRes.value.data));
-      }
-      if (bloodRes.status === 'fulfilled') {
-        setBloodGroups(namesFromMaster(bloodRes.value.data));
-      }
+    const endpoints = {
+      bloodGroups: '/master/blood-groups',
+      cities: '/master/cities',
+      countries: '/master/countries',
+      designations: '/master/designations',
+      genders: '/master/genders',
+      maritalStatuses: '/master/marital-status',
+      membershipTypes: '/master/membership-types',
+      occupations: '/master/occupations',
+      professions: '/master/professions',
+      qualifications: '/master/qualifications',
+      registrationCategories: '/master/registration-categories',
+      states: '/master/states',
+    };
+
+    Promise.allSettled(
+      Object.entries(endpoints).map(([key, url]) => (
+        api.get(url).then((response) => [key, namesFromMaster(response.data)])
+      ))
+    ).then((results) => {
+      const nextOptions = {};
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const [key, values] = result.value;
+          nextOptions[key] = values;
+        }
+      });
+      setMasterOptions((current) => ({ ...current, ...nextOptions }));
     });
   }, []);
 
@@ -193,6 +218,7 @@ function RegisterFamily() {
           occupation: form.occupation,
           employment: form.employment,
           profession: form.employment,
+          qualification: form.qualification,
           designation: form.designation,
           organization: form.organization.trim(),
           annualIncome: toLong(form.annualIncome),
@@ -216,6 +242,9 @@ function RegisterFamily() {
           email: member.email.trim(),
           occupation: member.occupation,
           employment: member.employment,
+          profession: member.profession || member.occupation,
+          qualification: member.qualification,
+          organization: member.organization?.trim() || '',
         })),
       };
 
@@ -262,6 +291,8 @@ function RegisterFamily() {
         <FamilyInfo
           form={form}
           error={error}
+          membershipTypes={masterOptions.membershipTypes}
+          registrationCategories={masterOptions.registrationCategories}
           onChange={handleChange}
           onCancel={() => navigate('/dashboard')}
           onSaveDraft={saveDraft}
@@ -272,9 +303,13 @@ function RegisterFamily() {
         <FamilyHead
           form={form}
           error={error}
-          occupations={occupations}
-          designations={designations}
-          bloodGroups={bloodGroups}
+          bloodGroups={masterOptions.bloodGroups}
+          designations={masterOptions.designations}
+          genders={masterOptions.genders}
+          maritalStatuses={masterOptions.maritalStatuses}
+          occupations={masterOptions.occupations}
+          professions={masterOptions.professions}
+          qualifications={masterOptions.qualifications}
           onChange={handleChange}
           onPhotoChange={(event) => setPhotoFile(event.target.files?.[0] || null)}
           photoName={photoFile?.name}
@@ -287,8 +322,11 @@ function RegisterFamily() {
         <FamilyMembers
           form={form}
           error={error}
-          occupations={occupations}
-          bloodGroups={bloodGroups}
+          bloodGroups={masterOptions.bloodGroups}
+          genders={masterOptions.genders}
+          maritalStatuses={masterOptions.maritalStatuses}
+          occupations={masterOptions.occupations}
+          professions={masterOptions.professions}
           onMemberChange={handleMemberChange}
           onBack={() => { setError(''); setStep(1); }}
           onSaveDraft={saveDraft}
@@ -299,6 +337,9 @@ function RegisterFamily() {
         <Address
           form={form}
           error={error}
+          cities={masterOptions.cities}
+          countries={masterOptions.countries}
+          states={masterOptions.states}
           onChange={handleChange}
           onBack={() => { setError(''); setStep(2); }}
           onSaveDraft={saveDraft}
