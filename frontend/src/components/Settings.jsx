@@ -2,9 +2,16 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import api from '../api/axios';
 import './Settings.css';
+import { getStoredUser, saveStoredUser } from '../utils/profile';
+import { getNotificationPreferences, saveNotificationPreferences } from '../utils/notificationPreferences';
 
-function getStoredUser(){
-  return JSON.parse(localStorage.getItem('user')) || {};
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 function Settings(){
@@ -13,6 +20,8 @@ function Settings(){
   const [message,setMessage] = useState('');
   const [error,setError] = useState('');
   const [saving,setSaving] = useState(false);
+  const [photoFile,setPhotoFile] = useState(null);
+  const [photoPreview,setPhotoPreview] = useState('');
   const [profile,setProfile] = useState(()=>{
     const user = getStoredUser();
     return {
@@ -20,23 +29,15 @@ function Settings(){
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
-      mobileNumber: user.mobileNumber || ''
+      mobileNumber: user.mobileNumber || '',
+      photo: user.photo || ''
     };
   });
   const [passwordForm,setPasswordForm] = useState({
     newPassword: '',
     confirmNewPassword: ''
   });
-  const [preferences,setPreferences] = useState(()=>{
-    try{
-      return JSON.parse(localStorage.getItem('notificationPreferences')) || {
-        email: true,
-        status: true
-      };
-    }catch{
-      return {email: true, status: true};
-    }
-  });
+  const [preferences,setPreferences] = useState(getNotificationPreferences);
   const initials = useMemo(()=>{
     const source = `${profile.firstName} ${profile.lastName}`.trim() || profile.email || 'User';
     return source
@@ -66,24 +67,47 @@ function Settings(){
           firstName: freshProfile.firstName || '',
           lastName: freshProfile.lastName || '',
           email: freshProfile.email || '',
-          mobileNumber: freshProfile.mobileNumber || ''
+          mobileNumber: freshProfile.mobileNumber || '',
+          photo: freshProfile.photo || ''
         });
-        localStorage.setItem('user', JSON.stringify({
+        saveStoredUser({
           id: freshProfile.id,
           firstName: freshProfile.firstName,
           lastName: freshProfile.lastName,
           email: freshProfile.email,
-          mobileNumber: freshProfile.mobileNumber
-        }));
+          mobileNumber: freshProfile.mobileNumber,
+          photo: freshProfile.photo
+        });
       })
       .catch((err)=>console.error('Error fetching settings profile:', err));
   },[]);
+
+  useEffect(()=>{
+    if(!photoFile){
+      setPhotoPreview('');
+      return undefined;
+    }
+
+    const previewUrl = URL.createObjectURL(photoFile);
+    setPhotoPreview(previewUrl);
+    return () => URL.revokeObjectURL(previewUrl);
+  },[photoFile]);
 
   function handleProfileChange(e){
     setProfile({
       ...profile,
       [e.target.name]: e.target.value
     });
+  }
+
+  function profilePhotoSrc(){
+    if(photoPreview){
+      return photoPreview;
+    }
+    if(profile.photo){
+      return `data:image/jpeg;base64,${profile.photo}`;
+    }
+    return '';
   }
 
   function handlePasswordChange(e){
@@ -99,19 +123,29 @@ function Settings(){
     setMessage('');
     setSaving(true);
     try{
-      await api.patch('/users/update-profile',{
+      const payload = {
         userId: profile.userId,
         firstName: profile.firstName,
         lastName: profile.lastName,
         mobileNumber: profile.mobileNumber
-      });
-      localStorage.setItem('user', JSON.stringify({
+      };
+      const body = new FormData();
+      body.append('request', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
+      if(photoFile){
+        body.append('photo', photoFile);
+      }
+      await api.patch('/users/update-profile', body);
+      const savedProfile = {
         id: profile.userId,
         firstName: profile.firstName,
         lastName: profile.lastName,
         email: profile.email,
-        mobileNumber: profile.mobileNumber
-      }));
+        mobileNumber: profile.mobileNumber,
+        photo: photoPreview ? await fileToBase64(photoFile) : profile.photo
+      };
+      saveStoredUser(savedProfile);
+      setProfile((current)=>({...current, photo: savedProfile.photo}));
+      setPhotoFile(null);
       setMessage('Profile updated successfully.');
     }catch(err){
       setError(err.response?.data?.message || 'Profile update failed.');
@@ -165,11 +199,18 @@ function Settings(){
       {activeTab === 'account' && (
         <form className="settings-card" onSubmit={handleProfileSubmit}>
           <div className="settings-profile-header">
-            <div className="profile-avatar">{initials}</div>
+            {profilePhotoSrc() ? (
+              <img className="profile-avatar image" src={profilePhotoSrc()} alt="Profile" />
+            ) : (
+              <div className="profile-avatar">{initials}</div>
+            )}
             <div>
               <h2>{`${profile.firstName} ${profile.lastName}`.trim() || 'User'}</h2>
               <p>{profile.email}</p>
-              <button type="button" disabled>Photo upload coming in a later update</button>
+              <label className="profile-photo-upload">
+                Change photo
+                <input type="file" accept="image/*" onChange={(event)=>setPhotoFile(event.target.files?.[0] || null)} />
+              </label>
             </div>
           </div>
 
@@ -222,23 +263,23 @@ function Settings(){
           <h2>Notification Preferences</h2>
           <div className="preference-row">
             <span>
-              <strong>Email notifications</strong>
-              <small>Receive membership updates by email.</small>
+              <strong>Normal notifications</strong>
+              <small>Show general membership and account activity notifications.</small>
             </span>
             <input
               type="checkbox"
-              checked={preferences.email}
+              checked={preferences.normal}
               onChange={(event)=>{
-                const next = {...preferences, email: event.target.checked};
+                const next = {...preferences, normal: event.target.checked};
                 setPreferences(next);
-                localStorage.setItem('notificationPreferences', JSON.stringify(next));
+                saveNotificationPreferences(next);
               }}
             />
           </div>
           <div className="preference-row">
             <span>
-              <strong>Status updates</strong>
-              <small>Notify me when family registrations change status.</small>
+              <strong>Status change notifications</strong>
+              <small>Show notifications when family registrations change status.</small>
             </span>
             <input
               type="checkbox"
@@ -246,7 +287,7 @@ function Settings(){
               onChange={(event)=>{
                 const next = {...preferences, status: event.target.checked};
                 setPreferences(next);
-                localStorage.setItem('notificationPreferences', JSON.stringify(next));
+                saveNotificationPreferences(next);
               }}
             />
           </div>

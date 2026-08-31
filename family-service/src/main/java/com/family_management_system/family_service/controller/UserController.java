@@ -5,9 +5,12 @@ import com.family_management_system.family_service.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
@@ -54,6 +57,20 @@ public class UserController {
                 HttpStatus.OK,
                 LocalDateTime.now(),
                 userService.updateProfile(updateProfileRequest)
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping(value = "/update-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<String>> updateProfileWithPhoto(
+            @Valid @RequestPart("request") UpdateProfileRequest updateProfileRequest,
+            @RequestPart(value = "photo", required = false) MultipartFile photo
+    ) throws IOException {
+        ApiResponse<String> response = new ApiResponse<>(
+                "profile updated",
+                HttpStatus.OK,
+                LocalDateTime.now(),
+                userService.updateProfile(updateProfileRequest, photo)
         );
         return ResponseEntity.ok(response);
     }

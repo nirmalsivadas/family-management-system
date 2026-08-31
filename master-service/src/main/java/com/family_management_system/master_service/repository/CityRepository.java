@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface CityRepository extends JpaRepository<City,Long> {
-    @Query(nativeQuery = true, value = "SELECT name from cities")
+    @Query(nativeQuery = true, value = "SELECT name from city")
     List<MasterResponse> findAllNames();
 }

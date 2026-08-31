@@ -60,6 +60,10 @@
   font-weight: 800;
 }
 
+.avatar-image {
+  object-fit: cover;
+}
+
 .sidebar-brand strong,
 .profile-link strong,
 .sidebar-user strong {

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -97,12 +98,24 @@ public class FamilyServiceImpl implements FamilyService {
             statusEnum = Status.valueOf(status.trim().toUpperCase());
         }
 
-        Page<FamilyHead> familyHeads = familyHeadRepository.searchByUser(
-                userId,
-                statusEnum,
-                query,
-                pageable
-        );
+        Page<FamilyHead> familyHeads;
+        if (query == null || query.isBlank()) {
+            familyHeads = statusEnum == null
+                    ? familyHeadRepository.findByUserId(userId, pageable)
+                    : familyHeadRepository.findByUserIdAndStatus(userId, statusEnum, pageable);
+        } else {
+            String normalizedQuery = query.trim().toLowerCase();
+            List<FamilyHead> matchedFamilies = (statusEnum == null
+                    ? familyHeadRepository.findByUserIdOrderByJoinDateDesc(userId)
+                    : familyHeadRepository.findByUserIdAndStatusOrderByJoinDateDesc(userId, statusEnum))
+                    .stream()
+                    .filter(familyHead -> familyMatches(familyHead, normalizedQuery))
+                    .toList();
+
+            int start = Math.min((int) pageable.getOffset(), matchedFamilies.size());
+            int end = Math.min(start + pageable.getPageSize(), matchedFamilies.size());
+            familyHeads = new PageImpl<>(matchedFamilies.subList(start, end), pageable, matchedFamilies.size());
+        }
 
         return familyHeads.map(fh->
                 new ViewFamilies(
@@ -121,19 +134,42 @@ public class FamilyServiceImpl implements FamilyService {
     public Page<ViewMembers> viewMembers(Long userId,int page,int size, String query) {
         Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
 
-        Page<FamilyMember> familyMembers = familyMemberRepository.searchByUser(userId, query, pageable);
+        List<FamilyHead> familyHeads = familyHeadRepository.searchListByUser(userId, query);
+        List<FamilyMember> familyMembers = familyMemberRepository.searchListByUser(userId, query);
+        List<ViewMembers> memberRows = new ArrayList<>();
 
-        return familyMembers.map(fh->
-                new ViewMembers(
-                        fh.getFirstName()+" "+fh.getLastName(),
-                        fh.getRelationShipWithFamilyHead().name(),
-                        fh.getFamilyHead().getFamilyName(),
-                        fh.getFamilyHead().getMemberShipId(),
-                        fh.getOccupation(),
-                        fh.getMobileNumber(),
-                        fh.getStatus()
-                ));
-    }
+        for (FamilyHead familyHead : familyHeads) {
+            memberRows.add(new ViewMembers(
+                    fullName(familyHead.getFirstName(), familyHead.getLastName()),
+                    "FAMILY_HEAD",
+                    familyHead.getFamilyName(),
+                    familyHead.getMemberShipId(),
+                    familyHead.getOccupation(),
+                    familyHead.getMobileNumber(),
+                    familyHead.getStatus()
+            ));
+        }
+
+        for (FamilyMember member : familyMembers) {
+            FamilyHead familyHead = member.getFamilyHead();
+            if (familyHead == null) {
+                continue;
+            }
+            memberRows.add(new ViewMembers(
+                    fullName(member.getFirstName(), member.getLastName()),
+                    member.getRelationShipWithFamilyHead().name(),
+                    familyHead.getFamilyName(),
+                    familyHead.getMemberShipId(),
+                    member.getOccupation(),
+                    member.getMobileNumber(),
+                    member.getStatus()
+            ));
+        }
+
+        int start = Math.min((int) pageable.getOffset(), memberRows.size());
+        int end = Math.min(start + pageable.getPageSize(), memberRows.size());
+        return new PageImpl<>(memberRows.subList(start, end), pageable, memberRows.size());
+}
 
     @Override
     @Transactional(readOnly = true)
@@ -365,5 +401,29 @@ public class FamilyServiceImpl implements FamilyService {
             return line1;
         }
         return line1 + " " + line2;
+    }
+
+    private String fullName(String firstName, String lastName) {
+        List<String> names = new ArrayList<>();
+        if (firstName != null && !firstName.isBlank()) {
+            names.add(firstName);
+        }
+        if (lastName != null && !lastName.isBlank()) {
+            names.add(lastName);
+        }
+        return String.join(" ", names);
+    }
+
+    private boolean familyMatches(FamilyHead familyHead, String query) {
+        return containsIgnoreCase(familyHead.getMemberShipId(), query)
+                || containsIgnoreCase(familyHead.getFamilyName(), query)
+                || containsIgnoreCase(familyHead.getFirstName(), query)
+                || containsIgnoreCase(familyHead.getLastName(), query)
+                || containsIgnoreCase(fullName(familyHead.getFirstName(), familyHead.getLastName()), query)
+                || containsIgnoreCase(familyHead.getStatus() != null ? familyHead.getStatus().name() : null, query);
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && value.toLowerCase().contains(query);
     }
 }

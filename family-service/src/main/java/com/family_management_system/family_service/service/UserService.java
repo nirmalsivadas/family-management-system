@@ -4,6 +4,9 @@ import com.family_management_system.family_service.dto.ChangePasswordRequest;
 import com.family_management_system.family_service.dto.SignupRequest;
 import com.family_management_system.family_service.dto.UpdateProfileRequest;
 import com.family_management_system.family_service.dto.UserResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.Nullable;
 
@@ -12,6 +15,7 @@ public interface UserService {
     Long totalFamilies(Long userId);
     Long totalMembers(Long userId);
     String updateProfile(UpdateProfileRequest updateProfileRequest);
+    String updateProfile(UpdateProfileRequest updateProfileRequest, MultipartFile photo) throws IOException;
     String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest);
     String resetPassword(String email);
 

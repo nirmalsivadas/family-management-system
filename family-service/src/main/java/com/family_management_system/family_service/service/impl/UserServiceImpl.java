@@ -10,11 +10,14 @@ import com.family_management_system.family_service.repository.UserRepository;
 import com.family_management_system.family_service.service.EmailService;
 import com.family_management_system.family_service.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 
 @Service
@@ -54,13 +57,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "userId", key = "#updateProfileRequest.userId")
     public String updateProfile(UpdateProfileRequest updateProfileRequest) {
+        return updateProfile(updateProfileRequest, null);
+    }
+
+    @Override
+    @CacheEvict(value = "userId", key = "#updateProfileRequest.userId")
+    public String updateProfile(UpdateProfileRequest updateProfileRequest, MultipartFile photo) {
         User user = userRepository.findById(updateProfileRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("User not found"));
 
         user.setFirstName(updateProfileRequest.getFirstName());
         user.setLastName(updateProfileRequest.getLastName());
         user.setMobileNumber(updateProfileRequest.getMobileNumber());
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                user.setPhoto(photo.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read profile picture file data", e);
+            }
+        }
         userRepository.save(user);
         kafkaTemplate.send("profile-updated",
                 updateProfileRequest.getUserId().toString(),

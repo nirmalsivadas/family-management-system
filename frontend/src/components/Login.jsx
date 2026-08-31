@@ -2,6 +2,7 @@ import React,{useState} from 'react';
 import {Link,useNavigate} from 'react-router-dom';
 import './Login.css';
 import api from '../api/axios';
+import { saveStoredUser } from '../utils/profile';
 
 function Login(){
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function Login(){
     try{
       const response = await api.post('/auth/login',form);
       const loggedInUser = response.data?.data ?? response.data;
-      localStorage.setItem('user',JSON.stringify(loggedInUser));
+      saveStoredUser(loggedInUser);
       navigate('/dashboard');
     }catch(err){
       const message = err.response?.data?.message || "Login failed";

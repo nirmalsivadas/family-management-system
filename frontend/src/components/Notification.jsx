@@ -1,6 +1,7 @@
 import React,{useEffect,useMemo,useState} from "react";
 import api from '../api/axios';
 import './Notification.css';
+import { filterNotificationsByPreferences, getNotificationPreferences } from '../utils/notificationPreferences';
 
 function formatTitle(title){
   if(!title){
@@ -58,13 +59,53 @@ function Notification() {
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState('');
   const [marking,setMarking] = useState(false);
+  const [preferences,setPreferences] = useState(getNotificationPreferences);
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
+  const visibleNotifications = useMemo(
+    ()=>filterNotificationsByPreferences(notifications, preferences),
+    [notifications, preferences]
+  );
 
   const unreadCount = useMemo(
-    ()=>notifications.filter((notification)=>!notification.markAsRead).length,
-    [notifications]
+    ()=>visibleNotifications.filter((notification)=>!notification.markAsRead).length,
+    [visibleNotifications]
   );
+
+  useEffect(()=>{
+    function syncPreferences(event){
+      setPreferences(event.detail || getNotificationPreferences());
+    }
+
+    window.addEventListener('notification-preferences-updated', syncPreferences);
+    window.addEventListener('storage', syncPreferences);
+    return () => {
+      window.removeEventListener('notification-preferences-updated', syncPreferences);
+      window.removeEventListener('storage', syncPreferences);
+    };
+  },[]);
+
+  function markVisibleAsRead(nextVisibleNotifications){
+    const unreadVisibleNotifications = nextVisibleNotifications.filter((notification)=>!notification.markAsRead);
+    if(unreadVisibleNotifications.length === 0){
+      return;
+    }
+
+    setNotifications((current)=>
+      current.map((notification)=>
+        unreadVisibleNotifications.some((visible)=>visible.notificationId === notification.notificationId)
+          ? {...notification, markAsRead: true}
+          : notification
+      )
+    );
+
+    unreadVisibleNotifications.forEach((notification)=>{
+      api.get(`/notification/mark-as-read/${notification.notificationId}?userId=${userId}`)
+        .catch((err)=>{
+          console.error('Error marking notification as read:', err);
+        });
+    });
+  }
 
   useEffect(()=>{
     if(!userId){
@@ -73,8 +114,11 @@ function Notification() {
     }
 
     api.get('/notification?userId=' + userId).then((response)=>{
-      setNotifications(response.data.data.content ?? response.data.data);
+      const nextNotifications = response.data.data.content ?? response.data.data;
+      setNotifications(nextNotifications);
       setLoading(false);
+      const nextVisibleNotifications = filterNotificationsByPreferences(nextNotifications, getNotificationPreferences());
+      markVisibleAsRead(nextVisibleNotifications);
     }).catch((err)=>{
       console.error("Error fetching notifications:", err);
       setError('Unable to load notifications.');
@@ -104,7 +148,7 @@ function Notification() {
   }
 
   async function markAllAsRead(){
-    const unreadNotifications = notifications.filter((notification)=>!notification.markAsRead);
+    const unreadNotifications = visibleNotifications.filter((notification)=>!notification.markAsRead);
     if(unreadNotifications.length === 0){
       return;
     }
@@ -115,7 +159,9 @@ function Notification() {
     );
 
     try{
-      await api.post(`/notification/mark-all-as-read?userId=${userId}`);
+      await Promise.all(unreadNotifications.map((notification)=>
+        api.get(`/notification/mark-as-read/${notification.notificationId}?userId=${userId}`)
+      ));
     }catch(err){
       console.error('Error marking all notifications as read:', err);
       setError('Unable to mark all notifications as read.');
@@ -143,7 +189,7 @@ function Notification() {
       {error && <div className="notifications-error">{error}</div>}
 
       <div className="notifications-list">
-        {notifications.map((notification) => {
+        {visibleNotifications.map((notification) => {
           const tone = getNotificationTone(notification);
           return (
             <article
@@ -169,7 +215,7 @@ function Notification() {
             </article>
           );
         })}
-        {notifications.length === 0 && (
+        {visibleNotifications.length === 0 && (
           <div className="notifications-empty">
             <h2>No notifications yet</h2>
             <p>Membership activity and account updates will appear here.</p>

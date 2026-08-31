@@ -17,6 +17,8 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
     Page<FamilyHead> findByUserId(Long userId, Pageable pageable);
     Page<FamilyHead> findByUserIdAndStatus
             (Long userId, Status status, Pageable pageable);
+    List<FamilyHead> findByUserIdOrderByJoinDateDesc(Long userId);
+    List<FamilyHead> findByUserIdAndStatusOrderByJoinDateDesc(Long userId, Status status);
     FamilyHead findByUserIdAndMemberShipId(Long userId,String memberShipId);
     List<FamilyHead> findTop5ByUserIdOrderByJoinDateDesc(Long userId);
     FamilyHead findByUserId(Long userId);
@@ -29,7 +31,8 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
                 :q IS NULL OR TRIM(:q) = ''
                 OR LOWER(f.familyName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(f.memberShipId) LIKE LOWER(CONCAT('%', :q, '%'))
-                OR LOWER(CONCAT(f.firstName, ' ', f.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
             )
             """)
     Page<FamilyHead> searchByUser(
@@ -37,5 +40,22 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
             @Param("status") Status status,
             @Param("q") String q,
             Pageable pageable
+    );
+
+    @Query("""
+            SELECT f FROM FamilyHead f
+            WHERE f.user.id = :userId
+            AND (
+                :q IS NULL OR TRIM(:q) = ''
+                OR LOWER(f.familyName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.memberShipId) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+            )
+            ORDER BY f.joinDate DESC
+            """)
+    List<FamilyHead> searchListByUser(
+            @Param("userId") Long userId,
+            @Param("q") String q
     );
 }

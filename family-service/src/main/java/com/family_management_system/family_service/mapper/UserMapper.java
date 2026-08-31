@@ -5,6 +5,8 @@ import com.family_management_system.family_service.dto.UpdateProfileRequest;
 import com.family_management_system.family_service.dto.UserResponse;
 import com.family_management_system.family_service.entity.User;
 
+import java.util.Base64;
+
 public class UserMapper {
     public static User toUpdateEntity(UpdateProfileRequest updateProfileRequest){
         User user = new User();
@@ -32,6 +34,9 @@ public class UserMapper {
         userResponse.setEmail(user.getEmail());
         userResponse.setPassword(user.getPassword());
         userResponse.setMobileNumber(user.getMobileNumber());
+        if (user.getPhoto() != null && user.getPhoto().length > 0) {
+            userResponse.setPhoto(Base64.getEncoder().encodeToString(user.getPhoto()));
+        }
         return userResponse;
     }
 }

@@ -23,6 +23,7 @@ function ViewFamilies(){
   },[query]);
 
   useEffect(() => {
+    let active = true;
     const user = JSON.parse(localStorage.getItem('user'));
     const userId = user?.id;
     if(!userId){
@@ -30,21 +31,37 @@ function ViewFamilies(){
       return;
     }
     setLoading(true);
+    setError('');
     api.get('/family/view-families', {
       params: { userId, status, page, size: 8, query: query || undefined }
     })
     .then((response)=>{
+      if(!active){
+        return;
+      }
       const pageData = response.data.data;
       setFamilies(pageData.content ?? pageData);
       setTotal(pageData.totalElements ?? (pageData.content?.length || 0));
       setTotalPages(pageData.totalPages ?? 1);
       setError('');
     }).catch((err)=>{
+      if(!active){
+        return;
+      }
       console.error("Error fetching families:", err);
       setError('Unable to load families.');
+      setFamilies([]);
+      setTotal(0);
+      setTotalPages(0);
     }).finally(()=>{
-      setLoading(false);
-    })
+      if(active){
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   },[status, query, page])
 
   function updateParams(next){

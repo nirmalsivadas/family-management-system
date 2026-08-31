@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface CountryRepository extends JpaRepository<Country,Long> {
-    @Query(nativeQuery = true, value = "SELECT name from countries")
+    @Query(nativeQuery = true, value = "SELECT name from country")
     List<MasterResponse> findAllNames();
 }

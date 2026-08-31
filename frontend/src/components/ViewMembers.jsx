@@ -4,6 +4,16 @@ import './ViewMembers.css';
 import api from '../api/axios';
 import { formatStatus } from '../utils/registerFamily';
 
+function formatRelationship(value) {
+  if (!value) {
+    return '-';
+  }
+  return String(value)
+    .toLowerCase()
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function ViewMembers(){
   const [searchParams,setSearchParams] = useSearchParams();
   const[familyMembers,setFamilyMembers] = useState([]);
@@ -91,7 +101,7 @@ function ViewMembers(){
         {familyMembers.map((member) => (
           <div key={`${member.memberShipId}-${member.name}`} className='members-row'>
             <strong>{member.name}</strong>
-            <span>{member.relationShip}</span>
+            <span>{formatRelationship(member.relationShip)}</span>
             <span>{member.familyName}</span>
             <span>{member.memberShipId}</span>
             <span>{member.occupation}</span>

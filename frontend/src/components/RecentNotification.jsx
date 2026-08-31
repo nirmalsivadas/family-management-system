@@ -2,6 +2,7 @@ import React,{useEffect,useState} from "react";
 import {Link} from 'react-router-dom';
 import api from '../api/axios';
 import './QuickActions.css';
+import { filterNotificationsByPreferences, getNotificationPreferences } from '../utils/notificationPreferences';
 
 function getActivityTone(notification){
   const text = `${notification.title || ''} ${notification.message || ''}`.toLowerCase();
@@ -19,7 +20,22 @@ function getActivityTone(notification){
 
 function RecentNotification(){
   const [recentNotifications,setRecentNotifications] = useState([]);
+  const [preferences,setPreferences] = useState(getNotificationPreferences);
   const [loading,setLoading] = useState(true);
+  const visibleRecentNotifications = filterNotificationsByPreferences(recentNotifications, preferences);
+
+  useEffect(()=>{
+    function syncPreferences(event){
+      setPreferences(event.detail || getNotificationPreferences());
+    }
+
+    window.addEventListener('notification-preferences-updated', syncPreferences);
+    window.addEventListener('storage', syncPreferences);
+    return () => {
+      window.removeEventListener('notification-preferences-updated', syncPreferences);
+      window.removeEventListener('storage', syncPreferences);
+    };
+  },[]);
 
   useEffect(()=>{
     const user = JSON.parse(localStorage.getItem('user'));
@@ -29,14 +45,32 @@ function RecentNotification(){
       setLoading(false);
       return;
     }
-    api.get('/notification/top-5?userId='+userId)
+
+    let active = true;
+
+    function loadRecentNotifications(){
+    api.get(`/notification?userId=${userId}&page=0&size=20`)
     .then((response)=>{
-      setRecentNotifications(response.data.data ?? []);
-      setLoading(false);
+        if(active){
+          const pageData = response.data.data;
+          setRecentNotifications(pageData?.content ?? pageData ?? []);
+          setLoading(false);
+        }
     }).catch((err)=>{
       console.error('Error fetching recent notifications:', err);
-      setLoading(false);
-    })
+        if(active){
+          setLoading(false);
+        }
+    });
+    }
+
+    loadRecentNotifications();
+    const intervalId = window.setInterval(loadRecentNotifications, 15000);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
   },[])
 
   if(loading){
@@ -48,7 +82,7 @@ function RecentNotification(){
         <h2>Recent Activity</h2>
         <Link to='/notifications'>View all -&gt;</Link>
       </div>
-      {recentNotifications.map((notification)=>{
+      {visibleRecentNotifications.slice(0, 5).map((notification)=>{
         const tone = getActivityTone(notification);
         return (
           <div className="activity-item" key={notification.notificationId}>
@@ -57,7 +91,7 @@ function RecentNotification(){
           </div>
         );
       })}
-      {recentNotifications.length === 0 && <p className="empty-state">No recent notifications.</p>}
+      {visibleRecentNotifications.length === 0 && <p className="empty-state">No recent notifications.</p>}
     </div>
   );
 }

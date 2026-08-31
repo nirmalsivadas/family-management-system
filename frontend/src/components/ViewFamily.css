@@ -54,3 +54,11 @@
   text-decoration: none;
   font-weight: 700;
 }
+
+.view-family-container .primary-action {
+  color: #fff;
+}
+
+.view-family-container .ghost-action {
+  color: #3827ff;
+}

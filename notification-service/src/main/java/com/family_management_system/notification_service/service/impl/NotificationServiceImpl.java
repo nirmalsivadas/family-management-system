@@ -8,6 +8,7 @@ import com.family_management_system.notification_service.repository.Notification
 import com.family_management_system.notification_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserClient userClient;
+    private final CacheManager cacheManager;
     @Override
     @Cacheable(value = "notifications",key = "#userId + ':' + #page + ':' + #size")
     public Page<NotificationResponse> getAllNotifications(Long userId,int page,int size) {
@@ -108,5 +110,15 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         notificationRepository.save(notification);
+        evictNotificationCaches();
+    }
+
+    private void evictNotificationCaches() {
+        if (cacheManager.getCache("notifications") != null) {
+            cacheManager.getCache("notifications").clear();
+        }
+        if (cacheManager.getCache("top5notifications") != null) {
+            cacheManager.getCache("top5notifications").clear();
+        }
     }
 }

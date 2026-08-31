@@ -29,4 +29,8 @@ public class User {
     private String mobileNumber;
     private String email;
     private String password;
+
+    @Lob
+    @Column(name = "photo")
+    private byte[] photo;
 }

@@ -41,4 +41,21 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Long>
             @Param("q") String q,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT m FROM FamilyMember m
+            WHERE m.familyHead.user.id = :userId
+            AND (
+                :q IS NULL OR TRIM(:q) = ''
+                OR LOWER(m.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(m.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(m.familyHead.familyName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(m.familyHead.memberShipId) LIKE LOWER(CONCAT('%', :q, '%'))
+            )
+            ORDER BY m.familyHead.joinDate DESC, m.id DESC
+            """)
+    List<FamilyMember> searchListByUser(
+            @Param("userId") Long userId,
+            @Param("q") String q
+    );
 }

@@ -2,30 +2,16 @@ import React,{useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import api from "../api/axios";
 import "./Profile.css";
-
-function getStoredUser(){
-  return JSON.parse(localStorage.getItem("user")) || {};
-}
-
-function initialsFor(firstName,lastName,email){
-  const fullName = `${firstName || ""} ${lastName || ""}`.trim();
-  const source = fullName || email || "User";
-  return source
-    .split(" ")
-    .filter(Boolean)
-    .map((part)=>part[0])
-    .join("")
-    .slice(0,2)
-    .toUpperCase();
-}
+import { getStoredUser, profileInitials, profileName, profilePhotoSrc, saveStoredUser } from "../utils/profile";
 
 function Profile(){
   const [profile,setProfile] = useState(getStoredUser);
   const fullName = useMemo(
-    ()=>`${profile.firstName || ""} ${profile.lastName || ""}`.trim() || profile.userName || "User",
+    ()=>profileName(profile),
     [profile]
   );
-  const initials = initialsFor(profile.firstName,profile.lastName,profile.email);
+  const initials = profileInitials(profile);
+  const photoSrc = profilePhotoSrc(profile);
 
   useEffect(()=>{
     const storedUser = getStoredUser();
@@ -42,7 +28,7 @@ function Profile(){
           password: undefined,
         };
         setProfile(nextProfile);
-        localStorage.setItem("user", JSON.stringify(nextProfile));
+        saveStoredUser(nextProfile);
       })
       .catch((err)=>{
         console.error("Error fetching profile:", err);
@@ -59,7 +45,11 @@ function Profile(){
       </div>
 
       <section className="profile-hero-card">
-        <div className="profile-avatar">{initials}</div>
+        {photoSrc ? (
+          <img className="profile-avatar image" src={photoSrc} alt="Profile" />
+        ) : (
+          <div className="profile-avatar">{initials}</div>
+        )}
         <div className="profile-identity">
           <h2>{fullName}</h2>
           <p>{profile.email || "No email available"}</p>

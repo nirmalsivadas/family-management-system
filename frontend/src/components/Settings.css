@@ -60,7 +60,9 @@
   font-size: 18px;
 }
 
-.settings-profile-header button {
+.profile-photo-upload {
+  display: inline-flex;
+  width: fit-content;
   border: 0;
   background: transparent;
   color: #3827ff;
@@ -68,6 +70,14 @@
   font-weight: 700;
   cursor: pointer;
   padding: 0;
+}
+
+.profile-photo-upload input {
+  display: none;
+}
+
+.profile-avatar.image {
+  object-fit: cover;
 }
 
 .settings-form-grid {
