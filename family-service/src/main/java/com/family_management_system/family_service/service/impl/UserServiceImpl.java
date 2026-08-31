@@ -3,6 +3,7 @@ package com.family_management_system.family_service.service.impl;
 import com.family_management_system.family_service.dto.*;
 import com.family_management_system.family_service.entity.User;
 import com.family_management_system.family_service.enums.Status;
+import com.family_management_system.family_service.exception.ResourceNotFoundException;
 import com.family_management_system.family_service.mapper.UserMapper;
 import com.family_management_system.family_service.repository.FamilyHeadRepository;
 import com.family_management_system.family_service.repository.FamilyMemberRepository;
@@ -15,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,12 +35,13 @@ public class UserServiceImpl implements UserService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse findByEmail(String email) {
         User user =  userRepository.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found with email: " + email);
+            throw new ResourceNotFoundException("User not found with email: " + email);
         }
-        return UserMapper.toResponse(user);
+        return UserMapper.toAuthResponse(user);
     }
 
     @Override
@@ -66,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "userId", key = "#updateProfileRequest.userId")
     public String updateProfile(UpdateProfileRequest updateProfileRequest, MultipartFile photo) {
         User user = userRepository.findById(updateProfileRequest.getUserId())
-                .orElseThrow(()->new RuntimeException("User not found"));
+                .orElseThrow(()->new ResourceNotFoundException("User not found"));
 
         user.setFirstName(updateProfileRequest.getFirstName());
         user.setLastName(updateProfileRequest.getLastName());
@@ -88,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(changePasswordRequest.getUserId())
-                .orElseThrow(()->new RuntimeException("User not found"));
+                .orElseThrow(()->new ResourceNotFoundException("User not found"));
 
         if (!changePasswordRequest.getNewPassword().equals(
                 changePasswordRequest.getConfirmNewPassword()
@@ -111,7 +114,7 @@ public class UserServiceImpl implements UserService {
     public String resetPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found with email: " + email);
+            throw new ResourceNotFoundException("User not found with email: " + email);
         }
         String temporaryPassword = generateTemporaryPassword();
         user.setPassword(passwordEncoder.encode(temporaryPassword));
@@ -136,9 +139,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "userId",key = "#userId")
+    @Transactional(readOnly = true)
     public UserResponse findByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()->
-                new RuntimeException("User not found"));
+                new ResourceNotFoundException("User not found"));
         return UserMapper.toResponse(user);
     }
 

@@ -39,4 +39,15 @@ public class UserMapper {
         }
         return userResponse;
     }
+
+    public static UserResponse toAuthResponse(User user){
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setFirstName(user.getFirstName());
+        userResponse.setLastName(user.getLastName());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setPassword(user.getPassword());
+        userResponse.setMobileNumber(user.getMobileNumber());
+        return userResponse;
+    }
 }
