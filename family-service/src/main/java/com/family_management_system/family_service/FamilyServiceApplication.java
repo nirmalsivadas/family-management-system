@@ -1,5 +1,6 @@
 package com.family_management_system.family_service;
 
+import com.family_management_system.family_service.config.EnvConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -18,6 +19,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 public class FamilyServiceApplication {
 
 	public static void main(String[] args) {
+		EnvConfig.load();
 		SpringApplication.run(FamilyServiceApplication.class, args);
 	}
 }

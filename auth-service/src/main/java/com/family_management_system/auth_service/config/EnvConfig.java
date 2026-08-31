@@ -1,4 +1,4 @@
-package com.family_management_system.family_service.config;
+package com.family_management_system.auth_service.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -9,12 +9,7 @@ public final class EnvConfig {
             "FRONTEND_URL",
             "DB_URL",
             "DB_USERNAME",
-            "DB_PASSWORD",
-            "EMAIL_HOST",
-            "EMAIL_PORT",
-            "EMAIL_USERNAME",
-            "EMAIL_PASSWORD",
-            "KAFKA_BOOTSTRAP_SERVERS"
+            "DB_PASSWORD"
     };
 
     private EnvConfig() {
