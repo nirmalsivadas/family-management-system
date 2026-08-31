@@ -8,13 +8,18 @@ import { getStoredUser, saveStoredUser } from '../utils/profile';
 
 function AppLayout(){
   useEffect(()=>{
+    const controller = new AbortController();
+    let active = true;
     const storedUser = getStoredUser();
     if(!storedUser.id){
       return;
     }
 
-    api.get(`/users/${storedUser.id}`)
+    api.get(`/users/${storedUser.id}`, {signal: controller.signal})
       .then((response)=>{
+        if(!active){
+          return;
+        }
         const freshProfile = response.data?.data ?? response.data;
         saveStoredUser({
           ...storedUser,
@@ -23,8 +28,16 @@ function AppLayout(){
         });
       })
       .catch((err)=>{
+        if(err.code === 'ERR_CANCELED'){
+          return;
+        }
         console.error('Error refreshing profile:', err);
       });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   },[]);
 
   return(

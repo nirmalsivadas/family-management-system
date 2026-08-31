@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ViewMembers {
+    private String rowId;
     private String name;
     private String relationShip;
     private String familyName;

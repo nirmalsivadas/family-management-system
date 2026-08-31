@@ -90,32 +90,24 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     @Cacheable(value = "view-families",key = "#userId + ':' + #status + ':' + #page + ':' + #size + ':' + #query")
     public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size, String query) {
-        Pageable pageable = PageRequest.of(page,size,
-                Sort.by("joinDate").descending());
+        Pageable pageable = PageRequest.of(page, size);
 
         Status statusEnum = null;
         if (status != null && !status.trim().isEmpty() && !status.trim().equalsIgnoreCase("ALL")) {
             statusEnum = Status.valueOf(status.trim().toUpperCase());
         }
 
-        Page<FamilyHead> familyHeads;
-        if (query == null || query.isBlank()) {
-            familyHeads = statusEnum == null
-                    ? familyHeadRepository.findByUserId(userId, pageable)
-                    : familyHeadRepository.findByUserIdAndStatus(userId, statusEnum, pageable);
-        } else {
-            String normalizedQuery = query.trim().toLowerCase();
-            List<FamilyHead> matchedFamilies = (statusEnum == null
-                    ? familyHeadRepository.findByUserIdOrderByJoinDateDesc(userId)
-                    : familyHeadRepository.findByUserIdAndStatusOrderByJoinDateDesc(userId, statusEnum))
-                    .stream()
-                    .filter(familyHead -> familyMatches(familyHead, normalizedQuery))
-                    .toList();
+        String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
+        Status finalStatusEnum = statusEnum;
+        List<FamilyHead> matchedFamilies = familyHeadRepository.findListByUserId(userId)
+                .stream()
+                .filter(familyHead -> finalStatusEnum == null || familyHead.getStatus() == finalStatusEnum)
+                .filter(familyHead -> normalizedQuery.isBlank() || familyMatches(familyHead, normalizedQuery))
+                .toList();
 
-            int start = Math.min((int) pageable.getOffset(), matchedFamilies.size());
-            int end = Math.min(start + pageable.getPageSize(), matchedFamilies.size());
-            familyHeads = new PageImpl<>(matchedFamilies.subList(start, end), pageable, matchedFamilies.size());
-        }
+        int start = Math.min((int) pageable.getOffset(), matchedFamilies.size());
+        int end = Math.min(start + pageable.getPageSize(), matchedFamilies.size());
+        Page<FamilyHead> familyHeads = new PageImpl<>(matchedFamilies.subList(start, end), pageable, matchedFamilies.size());
 
         return familyHeads.map(fh->
                 new ViewFamilies(
@@ -140,6 +132,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         for (FamilyHead familyHead : familyHeads) {
             memberRows.add(new ViewMembers(
+                    "HEAD-" + familyHead.getId(),
                     fullName(familyHead.getFirstName(), familyHead.getLastName()),
                     "FAMILY_HEAD",
                     familyHead.getFamilyName(),
@@ -156,6 +149,7 @@ public class FamilyServiceImpl implements FamilyService {
                 continue;
             }
             memberRows.add(new ViewMembers(
+                    "MEMBER-" + member.getId(),
                     fullName(member.getFirstName(), member.getLastName()),
                     member.getRelationShipWithFamilyHead().name(),
                     familyHead.getFamilyName(),

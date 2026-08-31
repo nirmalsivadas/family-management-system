@@ -3,6 +3,7 @@ import {Link, useSearchParams} from 'react-router-dom';
 import './ViewFamilies.css';
 import api from '../api/axios';
 import { formatStatus } from '../utils/registerFamily';
+import { normalizePageResponse } from '../utils/pageResponse';
 
 const STATUSES = ['ALL', 'PENDING', 'CONFIRMED', 'REJECTED'];
 
@@ -23,29 +24,37 @@ function ViewFamilies(){
   },[query]);
 
   useEffect(() => {
+    const controller = new AbortController();
     let active = true;
     const user = JSON.parse(localStorage.getItem('user'));
     const userId = user?.id;
     if(!userId){
+      setFamilies([]);
+      setTotal(0);
+      setTotalPages(0);
       setLoading(false)
       return;
     }
     setLoading(true);
     setError('');
     api.get('/family/view-families', {
-      params: { userId, status, page, size: 8, query: query || undefined }
+      params: { userId, status, page, size: 8, query: query || undefined },
+      signal: controller.signal
     })
     .then((response)=>{
       if(!active){
         return;
       }
-      const pageData = response.data.data;
-      setFamilies(pageData.content ?? pageData);
-      setTotal(pageData.totalElements ?? (pageData.content?.length || 0));
-      setTotalPages(pageData.totalPages ?? 1);
+      const pageData = normalizePageResponse(response.data.data);
+      setFamilies(pageData.content);
+      setTotal(pageData.totalElements);
+      setTotalPages(pageData.totalPages);
       setError('');
     }).catch((err)=>{
       if(!active){
+        return;
+      }
+      if(err.code === 'ERR_CANCELED'){
         return;
       }
       console.error("Error fetching families:", err);
@@ -61,6 +70,7 @@ function ViewFamilies(){
 
     return () => {
       active = false;
+      controller.abort();
     };
   },[status, query, page])
 
@@ -139,8 +149,8 @@ function ViewFamilies(){
           <span>Status</span>
           <span>Actions</span>
         </div>
-        {families.map((family)=>(
-          <div key={family.membershipId} className='families-row'>
+        {families.map((family, index)=>(
+          <div key={family.membershipId || `${page}-${index}`} className='families-row'>
             <strong>{family.membershipId}</strong>
             <span>{family.familyHead}</span>
             <span>{family.familyName}</span>

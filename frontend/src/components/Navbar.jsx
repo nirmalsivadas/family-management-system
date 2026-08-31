@@ -4,6 +4,8 @@ import api from '../api/axios';
 import './Navbar.css';
 import { getStoredUser, profileInitials, profileName, profilePhotoSrc } from '../utils/profile';
 import { filterNotificationsByPreferences, getNotificationPreferences } from '../utils/notificationPreferences';
+import { normalizePageResponse } from '../utils/pageResponse';
+import { logoutSession } from '../utils/authSession';
 
 function formatTitle(title){
   if(!title){
@@ -59,6 +61,7 @@ function Navbar(){
   const [notificationsOpen,setNotificationsOpen] = useState(false);
   const [topNotifications,setTopNotifications] = useState([]);
   const [notificationsLoading,setNotificationsLoading] = useState(false);
+  const [loggingOut,setLoggingOut] = useState(false);
   const [preferences,setPreferences] = useState(getNotificationPreferences);
   const [search,setSearch] = useState('');
   const [user,setUser] = useState(getStoredUser);
@@ -84,12 +87,17 @@ function Navbar(){
     let active = true;
 
     function loadTopNotifications(){
+    if(!userId){
+      setTopNotifications([]);
+      setNotificationsLoading(false);
+      return;
+    }
+
     setNotificationsLoading(true);
     api.get(`/notification?userId=${userId}&page=0&size=20`)
       .then((response)=>{
           if(active){
-            const pageData = response.data?.data;
-            setTopNotifications(pageData?.content ?? pageData ?? []);
+            setTopNotifications(normalizePageResponse(response.data?.data).content);
           }
       })
       .catch((err)=>{
@@ -113,6 +121,21 @@ function Navbar(){
       window.clearInterval(intervalId);
     };
   },[userId]);
+
+  useEffect(()=>{
+    function clearSessionState(){
+      setUser(null);
+      setTopNotifications([]);
+      setNotificationsOpen(false);
+      setProfileOpen(false);
+      setNotificationsLoading(false);
+    }
+
+    window.addEventListener('auth-session-cleared', clearSessionState);
+    return () => {
+      window.removeEventListener('auth-session-cleared', clearSessionState);
+    };
+  },[]);
 
   useEffect(()=>{
     function syncProfile(event){
@@ -250,17 +273,20 @@ function Navbar(){
             <Link to="/settings" onClick={()=>setProfileOpen(false)}>Settings</Link>
             <button
               type="button"
+              disabled={loggingOut}
               onClick={async ()=>{
+                setLoggingOut(true);
                 try{
-                  await api.post('/auth/logout');
+                  await logoutSession();
                 }catch(err){
                   console.error('Logout failed:', err);
+                }finally{
+                  setLoggingOut(false);
                 }
-                localStorage.removeItem('user');
                 navigate('/login');
               }}
             >
-              Logout
+              {loggingOut ? 'Logging out...' : 'Logout'}
             </button>
           </div>
         )}

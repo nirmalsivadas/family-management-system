@@ -3,6 +3,7 @@ import {Link,useNavigate} from 'react-router-dom';
 import './Login.css';
 import api from '../api/axios';
 import { saveStoredUser } from '../utils/profile';
+import { clearClientSession } from '../utils/authSession';
 
 function Login(){
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ function Login(){
     e.preventDefault();
     setError('');
     setLoading(true);
+    clearClientSession();
     try{
       const response = await api.post('/auth/login',form);
       const loggedInUser = response.data?.data ?? response.data;

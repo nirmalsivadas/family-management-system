@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import api from '../api/axios';
 import './QuickActions.css';
 import { filterNotificationsByPreferences, getNotificationPreferences } from '../utils/notificationPreferences';
+import { normalizePageResponse } from '../utils/pageResponse';
 
 function getActivityTone(notification){
   const text = `${notification.title || ''} ${notification.message || ''}`.toLowerCase();
@@ -42,6 +43,7 @@ function RecentNotification(){
     const userId = user?.id;
 
     if(!userId){
+      setRecentNotifications([]);
       setLoading(false);
       return;
     }
@@ -52,8 +54,7 @@ function RecentNotification(){
     api.get(`/notification?userId=${userId}&page=0&size=20`)
     .then((response)=>{
         if(active){
-          const pageData = response.data.data;
-          setRecentNotifications(pageData?.content ?? pageData ?? []);
+          setRecentNotifications(normalizePageResponse(response.data.data).content);
           setLoading(false);
         }
     }).catch((err)=>{

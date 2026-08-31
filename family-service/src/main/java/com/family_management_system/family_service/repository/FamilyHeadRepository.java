@@ -14,14 +14,16 @@ import java.util.List;
 public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
     Long countByUserId(Long userId);
     Long countByUserIdAndStatus(Long userId, Status status);
-    Page<FamilyHead> findByUserId(Long userId, Pageable pageable);
-    Page<FamilyHead> findByUserIdAndStatus
-            (Long userId, Status status, Pageable pageable);
-    List<FamilyHead> findByUserIdOrderByJoinDateDesc(Long userId);
-    List<FamilyHead> findByUserIdAndStatusOrderByJoinDateDesc(Long userId, Status status);
     FamilyHead findByUserIdAndMemberShipId(Long userId,String memberShipId);
     List<FamilyHead> findTop5ByUserIdOrderByJoinDateDesc(Long userId);
     FamilyHead findByUserId(Long userId);
+
+    @Query("""
+            SELECT f FROM FamilyHead f
+            WHERE f.user.id = :userId
+            ORDER BY f.joinDate DESC
+            """)
+    List<FamilyHead> findListByUserId(@Param("userId") Long userId);
 
     @Query("""
             SELECT f FROM FamilyHead f

@@ -3,6 +3,7 @@ import {Link, useSearchParams} from 'react-router-dom';
 import './ViewMembers.css';
 import api from '../api/axios';
 import { formatStatus } from '../utils/registerFamily';
+import { normalizePageResponse } from '../utils/pageResponse';
 
 function formatRelationship(value) {
   if (!value) {
@@ -29,26 +30,43 @@ function ViewMembers(){
   },[query]);
 
   useEffect(()=>{
+    const controller = new AbortController();
+    let active = true;
     const user = JSON.parse(localStorage.getItem('user'));
     const userId = user?.id;
 
     if(!userId){
+      setFamilyMembers([]);
+      setTotal(0);
+      setTotalPages(0);
       setLoading(false);
       return;
     }
     setLoading(true);
     api.get('/family/view-members', {
-      params: { userId, page, size: 8, query: query || undefined }
+      params: { userId, page, size: 8, query: query || undefined },
+      signal: controller.signal
     }).then((response)=>{
-      const pageData = response.data.data;
-      setFamilyMembers(pageData.content ?? pageData);
-      setTotal(pageData.totalElements ?? (pageData.content?.length || 0));
-      setTotalPages(pageData.totalPages ?? 1);
+      if(!active){
+        return;
+      }
+      const pageData = normalizePageResponse(response.data.data);
+      setFamilyMembers(pageData.content);
+      setTotal(pageData.totalElements);
+      setTotalPages(pageData.totalPages);
       setLoading(false);
     }).catch((err)=>{
+      if(!active || err.code === 'ERR_CANCELED'){
+        return;
+      }
       console.error("Error fetching families:", err);
         setLoading(false);
     })
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   },[query, page])
 
   function updateParams(next){
@@ -98,8 +116,8 @@ function ViewMembers(){
           <span>Status</span>
           <span>Action</span>
         </div>
-        {familyMembers.map((member) => (
-          <div key={`${member.memberShipId}-${member.name}`} className='members-row'>
+        {familyMembers.map((member, index) => (
+          <div key={member.rowId || `${page}-${member.memberShipId || 'member'}-${index}`} className='members-row'>
             <strong>{member.name}</strong>
             <span>{formatRelationship(member.relationShip)}</span>
             <span>{member.familyName}</span>

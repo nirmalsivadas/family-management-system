@@ -2,6 +2,7 @@ import React,{useEffect,useMemo,useState} from "react";
 import api from '../api/axios';
 import './Notification.css';
 import { filterNotificationsByPreferences, getNotificationPreferences } from '../utils/notificationPreferences';
+import { normalizePageResponse } from '../utils/pageResponse';
 
 function formatTitle(title){
   if(!title){
@@ -109,21 +110,36 @@ function Notification() {
 
   useEffect(()=>{
     if(!userId){
+      setNotifications([]);
       setLoading(false);
       return;
     }
 
-    api.get('/notification?userId=' + userId).then((response)=>{
-      const nextNotifications = response.data.data.content ?? response.data.data;
+    const controller = new AbortController();
+    let active = true;
+
+    api.get('/notification?userId=' + userId, {signal: controller.signal}).then((response)=>{
+      if(!active){
+        return;
+      }
+      const nextNotifications = normalizePageResponse(response.data.data).content;
       setNotifications(nextNotifications);
       setLoading(false);
       const nextVisibleNotifications = filterNotificationsByPreferences(nextNotifications, getNotificationPreferences());
       markVisibleAsRead(nextVisibleNotifications);
     }).catch((err)=>{
+      if(!active || err.code === 'ERR_CANCELED'){
+        return;
+      }
       console.error("Error fetching notifications:", err);
       setError('Unable to load notifications.');
       setLoading(false);
     });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   },[userId]);
 
   async function markAsRead(notificationId){
