@@ -2,6 +2,8 @@ package com.family_management_system.family_service.service.impl;
 
 import com.family_management_system.family_service.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -11,6 +13,7 @@ import java.util.Properties;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     @Value("${spring.mail.host}")
@@ -27,20 +30,17 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void confirmPasswordChange(String userEmail) {
-        JavaMailSenderImpl javaMailSenderImpl = mailSender();
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(senderEmail);
         message.setTo(userEmail);
         message.setSubject("Password Change Success");
         message.setText("Dear user, you have successfully changed your password.\n" +
                 "From now on please use the new password for login.");
-        javaMailSenderImpl.send(message);
+        send(message, userEmail);
     }
 
     @Override
     public void sendTemporaryPassword(String userEmail, String temporaryPassword) {
-        JavaMailSenderImpl javaMailSenderImpl = mailSender();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(senderEmail);
         message.setTo(userEmail);
@@ -48,7 +48,17 @@ public class EmailServiceImpl implements EmailService {
         message.setText("Dear user, a temporary password has been created for your FamilyMgmt account.\n" +
                 "Temporary password: " + temporaryPassword + "\n" +
                 "Please sign in and change this password immediately.");
-        javaMailSenderImpl.send(message);
+        send(message, userEmail);
+    }
+
+    private void send(SimpleMailMessage message, String userEmail) {
+        try {
+            mailSender().send(message);
+            log.info("Email sent successfully to {}", userEmail);
+        } catch (MailException ex) {
+            log.error("Failed to send email to {} using SMTP host {} and sender {}", userEmail, senderHost, senderEmail, ex);
+            throw ex;
+        }
     }
 
     private JavaMailSenderImpl mailSender() {
@@ -61,6 +71,11 @@ public class EmailServiceImpl implements EmailService {
         Properties props = javaMailSenderImpl.getJavaMailProperties();
         props.put("mail.smtp.auth","true");
         props.put("mail.smtp.starttls.enable","true");
+        props.put("mail.smtp.starttls.required","true");
+        props.put("mail.smtp.ssl.trust",senderHost);
+        props.put("mail.smtp.connectiontimeout","10000");
+        props.put("mail.smtp.timeout","10000");
+        props.put("mail.smtp.writetimeout","10000");
         return javaMailSenderImpl;
     }
 }

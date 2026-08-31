@@ -32,8 +32,8 @@ public class GlobalExceptionHandler {
     ){
         ApiErrorResponse response = new ApiErrorResponse();
         String message = request.getRequestURI().contains("forgot-password")
-                ? "Temporary password email could not be sent. Please check mail settings."
-                : "Password changed, but confirmation email could not be sent. Please check mail settings.";
+                ? "Temporary password email could not be sent. Password was not reset. Please check mail settings."
+                : "Confirmation email could not be sent. Password was not changed. Please check mail settings.";
         response.setMessage(message);
         response.setPath(request.getRequestURI());
         response.setStatus(HttpStatus.BAD_GATEWAY);
