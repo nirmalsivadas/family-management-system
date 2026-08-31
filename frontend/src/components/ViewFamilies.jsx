@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import {useCallback,useState,useEffect} from 'react';
 import {Link, useSearchParams} from 'react-router-dom';
 import './ViewFamilies.css';
 import api from '../api/axios';
@@ -19,9 +19,43 @@ function ViewFamilies(){
   const page = Number(searchParams.get('page') || 0);
   const [searchInput,setSearchInput] = useState(query);
 
+  const updateParams = useCallback((next)=>{
+    const params = {
+      status,
+      query,
+      page: String(page),
+      ...next,
+    };
+    Object.keys(params).forEach((key)=>{
+      if(key !== 'status' && !params[key]){
+        delete params[key];
+      }
+      if(key === 'page' && params[key] === '0'){
+        delete params[key];
+      }
+    });
+    if(params.status === 'ALL'){
+      delete params.status;
+    }
+    setSearchParams(params);
+  },[page, query, setSearchParams, status]);
+
   useEffect(()=>{
     setSearchInput(query);
   },[query]);
+
+  useEffect(()=>{
+    const nextQuery = searchInput.trim();
+    if(nextQuery === query){
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(()=>{
+      updateParams({query: nextQuery, page: '0'});
+    }, 350);
+
+    return () => window.clearTimeout(timeoutId);
+  },[searchInput, query, updateParams]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -74,34 +108,6 @@ function ViewFamilies(){
     };
   },[status, query, page])
 
-  function updateParams(next){
-    const params = {
-      status,
-      query,
-      page: String(page),
-      ...next,
-    };
-    Object.keys(params).forEach((key)=>{
-      if(!params[key] || params[key] === 'ALL' && key === 'status' && params[key]==='ALL'){
-        // keep status ALL
-      }
-      if(key !== 'status' && !params[key]){
-        delete params[key];
-      }
-      if(key === 'page' && params[key] === '0'){
-        delete params[key];
-      }
-    });
-    if(params.status === 'ALL'){
-      delete params.status;
-    }
-    setSearchParams(params);
-  }
-
-  if(loading){
-    return <div className='view-families-container'>Loading families...</div>
-  }
-
   return(
     <div className='view-families-container'>
       <div className="page-heading">
@@ -134,8 +140,18 @@ function ViewFamilies(){
           <input
             value={searchInput}
             onChange={(event)=>setSearchInput(event.target.value)}
-            placeholder="Search by name or membership #"
+            placeholder="Search family, member, mobile, or membership #"
           />
+          {searchInput && (
+            <button
+              type="button"
+              className="search-clear"
+              aria-label="Clear family search"
+              onClick={()=>setSearchInput('')}
+            >
+              Clear
+            </button>
+          )}
           <button type="submit">Search</button>
         </form>
       </div>
@@ -149,7 +165,8 @@ function ViewFamilies(){
           <span>Status</span>
           <span>Actions</span>
         </div>
-        {families.map((family, index)=>(
+        {loading && <p className="empty-state">Loading families...</p>}
+        {!loading && families.map((family, index)=>(
           <div key={family.membershipId || `${page}-${index}`} className='families-row'>
             <strong>{family.membershipId}</strong>
             <span>{family.familyHead}</span>
@@ -162,9 +179,9 @@ function ViewFamilies(){
             </span>
           </div>
         ))}
-        {families.length === 0 && <p className="empty-state">No families found.</p>}
+        {!loading && families.length === 0 && <p className="empty-state">No families found.</p>}
       </div>
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <div className="pager">
           <button type="button" disabled={page <= 0} onClick={()=>updateParams({page: String(page - 1)})}>Previous</button>
           <span>Page {page + 1} of {totalPages}</span>

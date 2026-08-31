@@ -1,5 +1,5 @@
-import React,{useEffect,useMemo,useState} from "react";
-import {Link,useNavigate} from "react-router-dom";
+import {useEffect,useMemo,useState} from "react";
+import {Link,useLocation,useNavigate} from "react-router-dom";
 import api from '../api/axios';
 import './Navbar.css';
 import { getStoredUser, profileInitials, profileName, profilePhotoSrc } from '../utils/profile';
@@ -57,6 +57,7 @@ function getNotificationTone(notification){
 
 function Navbar(){
   const navigate = useNavigate();
+  const location = useLocation();
   const [profileOpen,setProfileOpen] = useState(false);
   const [notificationsOpen,setNotificationsOpen] = useState(false);
   const [topNotifications,setTopNotifications] = useState([]);
@@ -195,7 +196,7 @@ function Navbar(){
           navigate(value ? `/view-families?query=${encodeURIComponent(value)}` : '/view-families');
         }}
       >
-        <span>Search</span>
+        <span className="search-icon" aria-hidden="true"></span>
         <input
           type="text"
           placeholder="Search families, members..."
@@ -203,6 +204,22 @@ function Navbar(){
           value={search}
           onChange={(event)=>setSearch(event.target.value)}
         />
+        {search && (
+          <button
+            type="button"
+            className="search-clear"
+            aria-label="Clear search"
+            onClick={()=>{
+              setSearch('');
+              if(location.pathname === '/view-families'){
+                navigate('/view-families');
+              }
+            }}
+          >
+            Clear
+          </button>
+        )}
+        <button type="submit" className="search-submit">Go</button>
       </form>
       <div className="navbar-actions">
         <button

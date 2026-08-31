@@ -87,6 +87,7 @@
 .list-search {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .list-search input {
@@ -94,6 +95,18 @@
   border: 1px solid #d0d5dd;
   border-radius: 8px;
   padding: 8px 12px;
+}
+
+.list-search input:focus {
+  border-color: #4f35f5;
+  box-shadow: 0 0 0 3px rgba(79, 53, 245, 0.14);
+  outline: 0;
+}
+
+.list-search .search-clear {
+  border-color: transparent;
+  background: #f3f4f6;
+  color: #667085;
 }
 
 .pager {

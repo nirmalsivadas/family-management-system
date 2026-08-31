@@ -37,6 +37,19 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
                 OR LOWER(f.memberShipId) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(f.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(f.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR CAST(f.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                OR EXISTS (
+                    SELECT m.id FROM FamilyMember m
+                    WHERE m.familyHead = f
+                    AND (
+                        LOWER(m.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.middleName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(CONCAT(m.firstName, ' ', m.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.email) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR CAST(m.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                    )
+                )
             )
             """)
     Page<FamilyHead> searchByUser(
@@ -65,6 +78,20 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
                 OR LOWER(f.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(f.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(CONCAT(f.firstName, ' ', f.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.email) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR CAST(f.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                OR EXISTS (
+                    SELECT m.id FROM FamilyMember m
+                    WHERE m.familyHead = f
+                    AND (
+                        LOWER(m.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.middleName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(CONCAT(m.firstName, ' ', m.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.email) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR CAST(m.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                    )
+                )
             )
             ORDER BY f.joinDate DESC
             """,
@@ -80,6 +107,20 @@ public interface FamilyHeadRepository extends JpaRepository<FamilyHead,Long> {
                 OR LOWER(f.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(f.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(CONCAT(f.firstName, ' ', f.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(f.email) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR CAST(f.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                OR EXISTS (
+                    SELECT m.id FROM FamilyMember m
+                    WHERE m.familyHead = f
+                    AND (
+                        LOWER(m.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.middleName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.lastName) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(CONCAT(m.firstName, ' ', m.lastName)) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR LOWER(m.email) LIKE LOWER(CONCAT('%', :q, '%'))
+                        OR CAST(m.mobileNumber AS string) LIKE CONCAT('%', :q, '%')
+                    )
+                )
             )
             """)
     Page<ViewFamilies> searchViewFamiliesByUser(
