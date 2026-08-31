@@ -4,6 +4,7 @@ import com.family_management_system.family_service.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,20 @@ public class GlobalExceptionHandler {
         response.setPath(request.getRequestURI());
         response.setStatus(HttpStatus.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<ApiErrorResponse> handleMailException(
+            MailException ex, HttpServletRequest request
+    ){
+        ApiErrorResponse response = new ApiErrorResponse();
+        String message = request.getRequestURI().contains("forgot-password")
+                ? "Temporary password email could not be sent. Please check mail settings."
+                : "Password changed, but confirmation email could not be sent. Please check mail settings.";
+        response.setMessage(message);
+        response.setPath(request.getRequestURI());
+        response.setStatus(HttpStatus.BAD_GATEWAY);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

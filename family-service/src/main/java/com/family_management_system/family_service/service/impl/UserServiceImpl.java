@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public String changePassword(String userEmail,ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(changePasswordRequest.getUserId())
                 .orElseThrow(()->new ResourceNotFoundException("User not found"));
@@ -100,17 +101,15 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
-        try {
-            emailService.confirmPasswordChange(userEmail);
-        } catch (Exception ignored) {
-        }
+        emailService.confirmPasswordChange(user.getEmail());
         kafkaTemplate.send("password-changed",
                 changePasswordRequest.getUserId().toString(),
                 "A new password was created");
-        return "Password Changed successfully";
+        return "Password changed successfully. Confirmation email sent to " + user.getEmail();
     }
 
     @Override
+    @Transactional
     public String resetPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
@@ -119,15 +118,11 @@ public class UserServiceImpl implements UserService {
         String temporaryPassword = generateTemporaryPassword();
         user.setPassword(passwordEncoder.encode(temporaryPassword));
         userRepository.save(user);
+        emailService.sendTemporaryPassword(user.getEmail(), temporaryPassword);
         kafkaTemplate.send("password-changed",
                 user.getId().toString(),
                 "A temporary password was issued");
-        try {
-            emailService.sendTemporaryPassword(email, temporaryPassword);
-            return "Temporary password sent to your email";
-        } catch (Exception e) {
-            return "Email delivery failed. Temporary password: " + temporaryPassword;
-        }
+        return "Temporary password sent to " + user.getEmail();
     }
 
     @Override

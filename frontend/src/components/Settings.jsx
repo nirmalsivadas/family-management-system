@@ -164,13 +164,13 @@ function Settings(){
     }
     setSaving(true);
     try{
-      await api.patch(`/users/change-password?userEmail=${encodeURIComponent(profile.email)}`,{
+      const response = await api.patch(`/users/change-password?userEmail=${encodeURIComponent(profile.email)}`,{
         userId: profile.userId,
         newPassword: passwordForm.newPassword,
         confirmNewPassword: passwordForm.confirmNewPassword
       });
       setPasswordForm({newPassword: '', confirmNewPassword: ''});
-      setMessage('Password updated successfully.');
+      setMessage(response.data?.data || 'Password updated successfully. Confirmation email sent.');
     }catch(err){
       setError(err.response?.data?.message || 'Password update failed.');
     }finally{
