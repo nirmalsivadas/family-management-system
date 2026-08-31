@@ -31,7 +31,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void confirmPasswordChange(String userEmail) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderEmail);
+        message.setFrom(normalizedSenderEmail());
         message.setTo(userEmail);
         message.setSubject("Password Change Success");
         message.setText("Dear user, you have successfully changed your password.\n" +
@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendTemporaryPassword(String userEmail, String temporaryPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderEmail);
+        message.setFrom(normalizedSenderEmail());
         message.setTo(userEmail);
         message.setSubject("Temporary Password");
         message.setText("Dear user, a temporary password has been created for your FamilyMgmt account.\n" +
@@ -65,8 +65,8 @@ public class EmailServiceImpl implements EmailService {
         JavaMailSenderImpl javaMailSenderImpl = new JavaMailSenderImpl();
         javaMailSenderImpl.setHost(senderHost);
         javaMailSenderImpl.setPort(senderPort);
-        javaMailSenderImpl.setUsername(senderEmail);
-        javaMailSenderImpl.setPassword(senderPassword);
+        javaMailSenderImpl.setUsername(normalizedSenderEmail());
+        javaMailSenderImpl.setPassword(normalizedSenderPassword());
 
         Properties props = javaMailSenderImpl.getJavaMailProperties();
         props.put("mail.smtp.auth","true");
@@ -77,5 +77,13 @@ public class EmailServiceImpl implements EmailService {
         props.put("mail.smtp.timeout","10000");
         props.put("mail.smtp.writetimeout","10000");
         return javaMailSenderImpl;
+    }
+
+    private String normalizedSenderEmail() {
+        return senderEmail == null ? "" : senderEmail.trim();
+    }
+
+    private String normalizedSenderPassword() {
+        return senderPassword == null ? "" : senderPassword.replaceAll("\\s+", "");
     }
 }
