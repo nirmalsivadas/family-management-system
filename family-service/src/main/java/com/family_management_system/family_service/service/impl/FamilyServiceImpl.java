@@ -88,6 +88,7 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "view-families",key = "#userId + ':' + #status + ':' + #page + ':' + #size + ':' + #query")
     public Page<ViewFamilies> viewFamilies(Long userId,String status, int page, int size, String query) {
         Pageable pageable = PageRequest.of(page, size);
@@ -97,27 +98,8 @@ public class FamilyServiceImpl implements FamilyService {
             statusEnum = Status.valueOf(status.trim().toUpperCase());
         }
 
-        String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
-        Status finalStatusEnum = statusEnum;
-        List<FamilyHead> matchedFamilies = familyHeadRepository.findListByUserId(userId)
-                .stream()
-                .filter(familyHead -> finalStatusEnum == null || familyHead.getStatus() == finalStatusEnum)
-                .filter(familyHead -> normalizedQuery.isBlank() || familyMatches(familyHead, normalizedQuery))
-                .toList();
-
-        int start = Math.min((int) pageable.getOffset(), matchedFamilies.size());
-        int end = Math.min(start + pageable.getPageSize(), matchedFamilies.size());
-        Page<FamilyHead> familyHeads = new PageImpl<>(matchedFamilies.subList(start, end), pageable, matchedFamilies.size());
-
-        return familyHeads.map(fh->
-                new ViewFamilies(
-                     fh.getMemberShipId(),
-                        fh.getFirstName()+" "+fh.getLastName(),
-                        fh.getFamilyName(),
-                        fh.getNumberOfFamilyMembers(),
-                        fh.getJoinDate(),
-                        fh.getStatus() != null ? fh.getStatus() : null
-                ));
+        String normalizedQuery = query == null ? "" : query.trim();
+        return familyHeadRepository.searchViewFamiliesByUser(userId, statusEnum, normalizedQuery, pageable);
     }
 
     @Override
@@ -373,13 +355,7 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional(readOnly = true)
     @Cacheable(value = "recent-families",key = "#userId")
     public List<RecentFamilies> recentFamilies(Long userId) {
-        List<FamilyHead> familyHeads = familyHeadRepository.findTop5ByUserIdOrderByJoinDateDesc(userId);
-        return familyHeads.stream().map(fh->new RecentFamilies(
-                fh.getMemberShipId(),
-                fh.getFirstName()+" "+fh.getLastName(),
-                fh.getNumberOfFamilyMembers(),
-                fh.getStatus()
-        )).toList();
+        return familyHeadRepository.findRecentFamilyViewsByUserId(userId, PageRequest.of(0, 5));
     }
 
     private String nextMembershipNumber() {
@@ -408,16 +384,4 @@ public class FamilyServiceImpl implements FamilyService {
         return String.join(" ", names);
     }
 
-    private boolean familyMatches(FamilyHead familyHead, String query) {
-        return containsIgnoreCase(familyHead.getMemberShipId(), query)
-                || containsIgnoreCase(familyHead.getFamilyName(), query)
-                || containsIgnoreCase(familyHead.getFirstName(), query)
-                || containsIgnoreCase(familyHead.getLastName(), query)
-                || containsIgnoreCase(fullName(familyHead.getFirstName(), familyHead.getLastName()), query)
-                || containsIgnoreCase(familyHead.getStatus() != null ? familyHead.getStatus().name() : null, query);
-    }
-
-    private boolean containsIgnoreCase(String value, String query) {
-        return value != null && value.toLowerCase().contains(query);
-    }
 }
